@@ -9,14 +9,8 @@ plugins {
     id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
 
-group = "com"
-version = "0.0.1-SNAPSHOT"
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
+group = "com.comjeonggosi"
+version = "1.0.0"
 
 configurations {
     compileOnly {
@@ -83,6 +77,8 @@ dependencyManagement {
 }
 
 kotlin {
+    jvmToolchain(21)
+
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict")
     }

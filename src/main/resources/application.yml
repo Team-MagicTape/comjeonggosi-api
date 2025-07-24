@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    active:
+      - flyway
+      - kafka
+      - mongo
+      - oauth2
+      - prod
+      - r2dbc
+      - redis
+      - actuator
+      - graphql
