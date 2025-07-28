@@ -1,4 +1,4 @@
-package com.comjeonggosi.common.entity
+package com.comjeonggosi.common.domain.entity
 
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
