@@ -1,0 +1,5 @@
+spring:
+  elasticsearch:
+    uris: http://${ELASTIC_HOST}:${ELASTIC_PORT}
+    username: elastic
+    password: ${ELASTIC_PASSWORD}
