@@ -27,7 +27,7 @@ class OAuth2SuccessHandler(
         authentication: Authentication
     ): Mono<Void> {
         val oauth2User = authentication.principal as CustomOAuth2User
-        val userId = oauth2User.userEntity.id!!
+        val userId = oauth2User.user.id!!
 
         runBlocking {
             authService.updateLastLoginAt(userId)

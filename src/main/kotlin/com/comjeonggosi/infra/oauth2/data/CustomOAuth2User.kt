@@ -5,5 +5,5 @@ import org.springframework.security.oauth2.core.user.OAuth2User
 
 class CustomOAuth2User(
     private val oauth2User: OAuth2User,
-    val userEntity: UserEntity
+     val user: UserEntity
 ) : OAuth2User by oauth2User
