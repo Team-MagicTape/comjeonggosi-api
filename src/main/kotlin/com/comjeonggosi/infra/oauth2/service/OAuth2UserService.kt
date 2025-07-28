@@ -3,7 +3,6 @@ package com.comjeonggosi.infra.oauth2.service
 import com.comjeonggosi.domain.user.domain.entity.UserEntity
 import com.comjeonggosi.domain.user.domain.repository.UserRepository
 import com.comjeonggosi.infra.oauth2.data.CustomOAuth2User
-import com.comjeonggosi.infra.oauth2.data.OAuth2UserInfo
 import com.comjeonggosi.infra.oauth2.enums.OAuth2Provider
 import kotlinx.coroutines.reactor.mono
 import org.springframework.context.annotation.Primary
@@ -23,7 +22,7 @@ class OAuth2UserService(
         return super.loadUser(request)
             .flatMap { oauth2User ->
                 val provider = OAuth2Provider.valueOf(request.clientRegistration.registrationId.uppercase())
-                val userInfo = extractUserInfo(provider, oauth2User.attributes)
+                val userInfo = provider.extractUserInfo(oauth2User.attributes)
 
                 mono {
                     val user = ensureUser(
@@ -33,58 +32,10 @@ class OAuth2UserService(
                         nickname = userInfo.nickname,
                         profileImageUrl = userInfo.profileImageUrl
                     )
+
                     CustomOAuth2User(oauth2User, user)
                 }
             }
-    }
-
-    private fun extractUserInfo(provider: OAuth2Provider, attributes: Map<String, Any>): OAuth2UserInfo {
-        return when (provider) {
-            OAuth2Provider.GOOGLE -> extractGoogleUserInfo(attributes)
-            OAuth2Provider.NAVER -> extractNaverUserInfo(attributes)
-            OAuth2Provider.KAKAO -> extractKakaoUserInfo(attributes)
-            OAuth2Provider.GITHUB -> extractGithubUserInfo(attributes)
-        }
-    }
-
-    private fun extractGoogleUserInfo(attributes: Map<String, Any>): OAuth2UserInfo {
-        return OAuth2UserInfo(
-            providerId = attributes["sub"].toString(),
-            email = attributes["email"].toString(),
-            nickname = attributes["name"].toString(),
-            profileImageUrl = attributes["picture"]?.toString()
-        )
-    }
-
-    private fun extractNaverUserInfo(attributes: Map<String, Any>): OAuth2UserInfo {
-        val response = attributes["response"] as Map<*, *>
-        return OAuth2UserInfo(
-            providerId = response["id"].toString(),
-            email = response["email"].toString(),
-            nickname = response["nickname"].toString(),
-            profileImageUrl = response["profile_image"]?.toString()
-        )
-    }
-
-    private fun extractKakaoUserInfo(attributes: Map<String, Any>): OAuth2UserInfo {
-        val kakaoAccount = attributes["kakao_account"] as Map<*, *>
-        val profile = kakaoAccount["profile"] as Map<*, *>
-
-        return OAuth2UserInfo(
-            providerId = attributes["id"].toString(),
-            email = kakaoAccount["email"].toString(),
-            nickname = profile["nickname"].toString(),
-            profileImageUrl = profile["profile_image_url"]?.toString()
-        )
-    }
-
-    private fun extractGithubUserInfo(attributes: Map<String, Any>): OAuth2UserInfo {
-        return OAuth2UserInfo(
-            providerId = attributes["id"].toString(),
-            email = attributes["email"]?.toString() ?: "",
-            nickname = attributes["login"].toString(),
-            profileImageUrl = attributes["avatar_url"]?.toString()
-        )
     }
 
     private suspend fun ensureUser(
