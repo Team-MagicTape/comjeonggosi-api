@@ -13,7 +13,6 @@ import reactor.core.publisher.Mono
 class OAuth2FailureHandler(
     private val frontendProperties: FrontendProperties
 ) : ServerAuthenticationFailureHandler {
-
     override fun onAuthenticationFailure(
         webFilterExchange: WebFilterExchange,
         ex: AuthenticationException

@@ -4,6 +4,7 @@ import com.comjeonggosi.domain.user.domain.entity.UserEntity
 import com.comjeonggosi.domain.user.domain.repository.UserRepository
 import com.comjeonggosi.infra.oauth2.data.CustomOAuth2User
 import com.comjeonggosi.infra.oauth2.data.OAuth2UserInfo
+import com.comjeonggosi.infra.oauth2.enums.OAuth2Provider
 import kotlinx.coroutines.reactor.mono
 import org.springframework.context.annotation.Primary
 import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService
@@ -21,7 +22,7 @@ class OAuth2UserService(
     override fun loadUser(request: OAuth2UserRequest): Mono<OAuth2User> {
         return super.loadUser(request)
             .flatMap { oauth2User ->
-                val provider = request.clientRegistration.registrationId
+                val provider = OAuth2Provider.valueOf(request.clientRegistration.registrationId.uppercase())
                 val userInfo = extractUserInfo(provider, oauth2User.attributes)
 
                 mono {
@@ -37,13 +38,12 @@ class OAuth2UserService(
             }
     }
 
-    private fun extractUserInfo(provider: String, attributes: Map<String, Any>): OAuth2UserInfo {
+    private fun extractUserInfo(provider: OAuth2Provider, attributes: Map<String, Any>): OAuth2UserInfo {
         return when (provider) {
-            "google" -> extractGoogleUserInfo(attributes)
-            "naver" -> extractNaverUserInfo(attributes)
-            "kakao" -> extractKakaoUserInfo(attributes)
-            "github" -> extractGithubUserInfo(attributes)
-            else -> throw IllegalArgumentException("Unknown provider: $provider")
+            OAuth2Provider.GOOGLE -> extractGoogleUserInfo(attributes)
+            OAuth2Provider.NAVER -> extractNaverUserInfo(attributes)
+            OAuth2Provider.KAKAO -> extractKakaoUserInfo(attributes)
+            OAuth2Provider.GITHUB -> extractGithubUserInfo(attributes)
         }
     }
 
@@ -88,16 +88,15 @@ class OAuth2UserService(
     }
 
     private suspend fun ensureUser(
-        provider: String,
+        provider: OAuth2Provider,
         providerId: String,
         email: String,
         nickname: String,
         profileImageUrl: String?
     ): UserEntity {
         val existingUser = userRepository.findByProviderAndProviderId(provider, providerId)
-        if (existingUser != null) {
+        if (existingUser != null)
             return existingUser
-        }
 
         return userRepository.save(
             UserEntity(

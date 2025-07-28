@@ -1,6 +1,7 @@
 package com.comjeonggosi.domain.user.domain.entity
 
 import com.comjeonggosi.common.domain.entity.BaseEntity
+import com.comjeonggosi.infra.oauth2.enums.OAuth2Provider
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
@@ -9,7 +10,7 @@ import java.time.Instant
 data class UserEntity(
     @Id
     val id: Long? = null,
-    val provider: String,
+    val provider: OAuth2Provider,
     val providerId: String,
     val email: String,
     val nickname: String,
