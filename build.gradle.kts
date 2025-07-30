@@ -120,3 +120,9 @@ tasks.asciidoctor {
     inputs.dir(project.extra["snippetsDir"]!!)
     dependsOn(tasks.test)
 }
+
+tasks.bootJar {
+    archiveBaseName.set("comjeonggosi-api")
+    archiveVersion.set("")
+    archiveClassifier.set("")
+}

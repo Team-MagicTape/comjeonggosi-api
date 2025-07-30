@@ -1,3 +1,0 @@
-frontend:
-  base-url: ${FRONTEND_BASE_URL}
-  secure: ${FRONTEND_SECURE}

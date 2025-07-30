@@ -1,3 +1,0 @@
-management:
-  server:
-    port: ${MANAGEMENT_PORT}
