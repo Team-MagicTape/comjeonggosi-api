@@ -8,5 +8,4 @@ import org.springframework.stereotype.Repository
 @Repository
 interface UserRepository : CoroutineCrudRepository<UserEntity, Long> {
     suspend fun findByProviderAndProviderId(provider: OAuth2Provider, providerId: String): UserEntity?
-    suspend fun findByEmail(email: String): UserEntity?
 }
