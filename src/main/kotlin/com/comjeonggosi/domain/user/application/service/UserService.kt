@@ -5,7 +5,9 @@ import com.comjeonggosi.infra.security.holder.SecurityHolder
 import org.springframework.stereotype.Service
 
 @Service
-class UserService(private val securityHolder: SecurityHolder) {
+class UserService(
+    private val securityHolder: SecurityHolder
+) {
     suspend fun getMyUser(): MyUserResponse {
         val user = securityHolder.getUser()
 
