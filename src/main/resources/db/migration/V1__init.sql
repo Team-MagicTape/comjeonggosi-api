@@ -21,6 +21,7 @@ CREATE TABLE posts (
     content TEXT NOT NULL,
     author_id BIGINT NOT NULL,
     category VARCHAR(50) NOT NULL,
+    is_deleted boolean NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_posts_author FOREIGN KEY (author_id) REFERENCES users(id)
