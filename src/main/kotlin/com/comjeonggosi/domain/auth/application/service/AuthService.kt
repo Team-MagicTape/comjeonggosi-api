@@ -2,7 +2,7 @@ package com.comjeonggosi.domain.auth.application.service
 
 import com.comjeonggosi.domain.user.domain.entity.UserEntity
 import com.comjeonggosi.domain.user.domain.repository.UserRepository
-import com.comjeonggosi.infra.frontend.config.FrontendProperties
+import com.comjeonggosi.infra.cookie.config.CookieProperties
 import com.comjeonggosi.infra.security.jwt.enums.JwtType
 import com.comjeonggosi.infra.security.jwt.provider.JwtProvider
 import org.springframework.http.ResponseCookie
@@ -15,7 +15,7 @@ import java.time.Instant
 class AuthService(
     private val userRepository: UserRepository,
     private val jwtProvider: JwtProvider,
-    private val frontendProperties: FrontendProperties
+    private val cookieProperties: CookieProperties
 ) {
     suspend fun refreshToken(exchange: ServerWebExchange) {
         val refreshToken = exchange.request.cookies["refreshToken"]?.first()?.value
@@ -49,11 +49,11 @@ class AuthService(
     private fun createCookie(name: String, value: String, maxAge: Duration): ResponseCookie {
         return ResponseCookie.from(name, value)
             .httpOnly(true)
-            .secure(frontendProperties.secure)
-            .sameSite("Lax")
+            .secure(cookieProperties.secure)
+            .sameSite(cookieProperties.sameSite)
             .maxAge(maxAge)
             .path("/")
-            .domain(if (frontendProperties.secure) null else "localhost")
+            .domain(if (cookieProperties.secure) null else "localhost")
             .build()
     }
 }
