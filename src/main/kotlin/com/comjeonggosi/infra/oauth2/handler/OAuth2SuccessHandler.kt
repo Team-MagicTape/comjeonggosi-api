@@ -1,6 +1,7 @@
 package com.comjeonggosi.infra.oauth2.handler
 
 import com.comjeonggosi.domain.auth.application.service.AuthService
+import com.comjeonggosi.infra.cookie.config.CookieProperties
 import com.comjeonggosi.infra.frontend.config.FrontendProperties
 import com.comjeonggosi.infra.oauth2.data.CustomOAuth2User
 import com.comjeonggosi.infra.security.jwt.enums.JwtType
@@ -20,7 +21,8 @@ import java.time.Duration
 class OAuth2SuccessHandler(
     private val jwtProvider: JwtProvider,
     private val authService: AuthService,
-    private val frontendProperties: FrontendProperties
+    private val frontendProperties: FrontendProperties,
+    private val cookieProperties: CookieProperties
 ) : ServerAuthenticationSuccessHandler {
     override fun onAuthenticationSuccess(
         webFilterExchange: WebFilterExchange,
@@ -59,11 +61,11 @@ class OAuth2SuccessHandler(
     private fun createCookie(name: String, value: String, maxAge: Duration): ResponseCookie {
         return ResponseCookie.from(name, value)
             .httpOnly(true)
-            .secure(frontendProperties.secure)
-            .sameSite("Lax")
+            .secure(cookieProperties.secure)
+            .sameSite(cookieProperties.sameSite)
             .maxAge(maxAge)
             .path("/")
-            .domain(if (frontendProperties.secure) null else "localhost")
+            .domain(if (cookieProperties.secure) null else "localhost")
             .build()
     }
 }
