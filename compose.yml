@@ -1,7 +1,7 @@
 services:
   elasticsearch:
     image: 'elasticsearch:9.0.4'
-    container_name: comjeonggosi-elasticsearch
+    container_name: 'comjeonggosi-elasticsearch'
     environment:
       - 'ELASTIC_PASSWORD=${ELASTIC_PASSWORD}'
       - 'discovery.type=single-node'
@@ -10,17 +10,17 @@ services:
       - '${ELASTIC_PORT}:9200'
       - '9300'
   mongodb:
-    image: 'mongo:latest'
-    container_name: comjeonggosi-mongodb
+    image: 'mongo:4.4'
+    container_name: 'comjeonggosi-mongodb'
     environment:
-      - 'MONGO_INITDB_DATABASE=${MONGO_DB}'
+      - 'MONGO_INITDB_DATABASE=${MONGO_DATABASE}'
       - 'MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}'
       - 'MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}'
     ports:
       - '${MONGO_PORT}:27017'
   postgres:
     image: 'postgres:latest'
-    container_name: comjeonggosi-postgres
+    container_name: 'comjeonggosi-postgres'
     environment:
       - 'POSTGRES_DB=${POSTGRES_DATABASE}'
       - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD}'
@@ -29,7 +29,7 @@ services:
       - '${POSTGRES_PORT}:5432'
   rabbitmq:
     image: 'rabbitmq:latest'
-    container_name: comjeonggosi-rabbitmq
+    container_name: 'comjeonggosi-rabbitmq'
     environment:
       - 'RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}'
       - 'RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}'
@@ -37,6 +37,6 @@ services:
       - '${RABBITMQ_PORT}:5672'
   redis:
     image: 'redis:latest'
-    container_name: comjeonggosi-redis
+    container_name: 'comjeonggosi-redis'
     ports:
       - '${REDIS_PORT}:6379'
