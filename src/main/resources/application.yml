@@ -37,6 +37,7 @@ spring:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
             authorization-grant-type: authorization_code
+            redirect-uri: "${BASE_URL}/login/oauth2/code/{registrationId}"
             scope:
               - profile
               - email
@@ -45,14 +46,14 @@ spring:
             client-secret: ${NAVER_CLIENT_SECRET}
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "${BASE_URL}/login/oauth2/code/{registrationId}"
             client-name: Naver
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: "${BASE_URL}/login/oauth2/code/{registrationId}"
             client-name: Kakao
             scope:
               - profile_nickname
@@ -61,6 +62,7 @@ spring:
             client-id: ${GITHUB_CLIENT_ID}
             client-secret: ${GITHUB_CLIENT_SECRET}
             authorization-grant-type: authorization_code
+            redirect-uri: "${BASE_URL}/login/oauth2/code/{registrationId}"
             scope:
               - user:email
         provider:
