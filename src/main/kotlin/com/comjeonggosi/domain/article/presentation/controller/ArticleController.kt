@@ -1,6 +1,6 @@
-package com.comjeonggosi.domain.post.presentation.controller
+package com.comjeonggosi.domain.article.presentation.controller
 
-import com.comjeonggosi.domain.post.application.service.PostService
+import com.comjeonggosi.domain.article.application.service.ArticleService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/posts")
-class PostController(
-    private val postService: PostService
+class ArticleController(
+    private val articleService: ArticleService
 ) {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    suspend fun getAllPosts() = postService.getAllPosts()
+    suspend fun getArticles() = articleService.getArticles()
 
-    @GetMapping("/{postId}")
+    @GetMapping("/{articleId}")
     @ResponseStatus(HttpStatus.OK)
-    suspend fun getPost(@PathVariable postId: Long) = postService.getPost(postId)
+    suspend fun getArticle(@PathVariable articleId: Long) = articleService.getArticle(articleId)
 }
