@@ -22,29 +22,35 @@ class AdminArticleService(
     suspend fun createArticle(request: CreateArticleRequest) {
         val me = securityHolder.getUser()
 
-        articleRepository.save(ArticleEntity(
-            title = request.title,
-            content = request.content,
-            authorId = me.id!!,
-            categoryId = request.categoryId,
-        ))
+        articleRepository.save(
+            ArticleEntity(
+                title = request.title,
+                content = request.content,
+                authorId = me.id!!,
+                categoryId = request.categoryId,
+            )
+        )
     }
 
     suspend fun updateArticle(articleId: Long, request: UpdateArticleRequest) {
         val article = articleRepository.findById(articleId) ?: throw IllegalArgumentException("article not found")
 
-        articleRepository.save(article.copy(
-            title = request.title ?: article.title,
-            content = request.content ?: article.content
-        ))
+        articleRepository.save(
+            article.copy(
+                title = request.title ?: article.title,
+                content = request.content ?: article.content
+            )
+        )
     }
 
     suspend fun deleteArticle(articleId: Long) {
         val article = articleRepository.findById(articleId) ?: throw IllegalArgumentException("article not found")
 
-        articleRepository.save(article.copy(
-            deletedAt = Instant.now(),
-        ))
+        articleRepository.save(
+            article.copy(
+                deletedAt = Instant.now(),
+            )
+        )
     }
 
     suspend fun getArticles(): Flow<ArticleResponse> {

@@ -15,10 +15,12 @@ class AdminCategoryService(
     private val categoryRepository: CategoryRepository
 ) {
     suspend fun createCategory(request: CreateCategoryRequest) {
-        categoryRepository.save(CategoryEntity(
-            name = request.name,
-            description = request.description
-        ))
+        categoryRepository.save(
+            CategoryEntity(
+                name = request.name,
+                description = request.description
+            )
+        )
     }
 
     suspend fun getCategories(): Flow<CategoryResponse> {
@@ -28,18 +30,22 @@ class AdminCategoryService(
     suspend fun updateCategory(categoryId: Long, request: UpdateCategoryRequest) {
         val category = categoryRepository.findById(categoryId) ?: throw IllegalArgumentException("category not found")
 
-        categoryRepository.save(category.copy(
-            name = request.name ?: category.name,
-            description = request.description ?: category.description
-        ))
+        categoryRepository.save(
+            category.copy(
+                name = request.name ?: category.name,
+                description = request.description ?: category.description
+            )
+        )
     }
 
     suspend fun deleteCategory(categoryId: Long) {
         val category = categoryRepository.findById(categoryId) ?: throw IllegalArgumentException("category not found")
 
-        categoryRepository.save(category.copy(
-            deletedAt = Instant.now()
-        ))
+        categoryRepository.save(
+            category.copy(
+                deletedAt = Instant.now()
+            )
+        )
     }
 
     private fun CategoryEntity.toResponse() =

@@ -1,8 +1,8 @@
 package com.comjeonggosi.domain.admin.article.presentation.controller
 
+import com.comjeonggosi.domain.admin.article.application.service.AdminArticleService
 import com.comjeonggosi.domain.admin.article.presentation.dto.request.CreateArticleRequest
 import com.comjeonggosi.domain.admin.article.presentation.dto.request.UpdateArticleRequest
-import com.comjeonggosi.domain.admin.article.application.service.AdminArticleService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
