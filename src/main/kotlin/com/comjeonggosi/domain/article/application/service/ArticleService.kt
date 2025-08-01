@@ -20,11 +20,10 @@ class ArticleService(
             ?: throw IllegalArgumentException("article not found")
     }
 
-    private fun ArticleEntity.toResponse(): ArticleResponse {
-        return ArticleResponse(
+    private fun ArticleEntity.toResponse(): ArticleResponse =
+        ArticleResponse(
             id = this.id!!,
             title = this.title,
             content = this.content,
         )
-    }
 }

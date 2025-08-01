@@ -15,7 +15,7 @@ ALTER TABLE users ADD CONSTRAINT uk_users_provider_provider_id UNIQUE (provider,
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_provider ON users(provider);
 
-CREATE TABLE posts (
+CREATE TABLE articles (
     id BIGSERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE posts (
     is_deleted boolean NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_posts_author FOREIGN KEY (author_id) REFERENCES users(id)
+    CONSTRAINT fk_articles_author FOREIGN KEY (author_id) REFERENCES users(id)
 );
 
-CREATE INDEX idx_posts_category ON posts(category);
+CREATE INDEX idx_articles_category ON articles(category);

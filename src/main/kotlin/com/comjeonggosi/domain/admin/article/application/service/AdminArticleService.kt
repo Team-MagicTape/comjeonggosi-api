@@ -1,4 +1,4 @@
-package com.comjeonggosi.domain.admin.article.service
+package com.comjeonggosi.domain.admin.article.application.service
 
 import com.comjeonggosi.domain.admin.article.presentation.dto.request.CreateArticleRequest
 import com.comjeonggosi.domain.admin.article.presentation.dto.request.UpdateArticleRequest
@@ -15,27 +15,28 @@ class AdminArticleService(
     suspend fun createArticle(request: CreateArticleRequest) {
         val me = securityHolder.getUser()
 
-        val article = ArticleEntity(
+        articleRepository.save(ArticleEntity(
             title = request.title,
             content = request.content,
             authorId = me.id!!,
             categoryId = request.categoryId,
-        )
-        articleRepository.save(article)
+        ))
     }
 
     suspend fun updateArticle(articleId: Long, request: UpdateArticleRequest) {
-        val post = articleRepository.findById(articleId) ?: throw IllegalArgumentException("article not found")
+        val article = articleRepository.findById(articleId) ?: throw IllegalArgumentException("article not found")
 
-        request.title?.let { post.title = it }
-        request.content?.let { post.content = it }
-
-        articleRepository.save(post)
+        articleRepository.save(article.copy(
+            title = request.title ?: article.title,
+            content = request.content ?: article.content
+        ))
     }
 
     suspend fun deleteArticle(articleId: Long) {
-        val post = articleRepository.findById(articleId) ?: throw IllegalArgumentException("article not found")
+        val article = articleRepository.findById(articleId) ?: throw IllegalArgumentException("article not found")
 
-        post.isDeleted = true
+        articleRepository.save(article.copy(
+            isDeleted = true
+        ))
     }
 }

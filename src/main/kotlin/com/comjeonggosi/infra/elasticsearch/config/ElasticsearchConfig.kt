@@ -8,7 +8,7 @@ import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfigurat
 @Configuration
 class ElasticsearchConfig(
     private val elasticsearchProperties: ElasticsearchProperties
-): ElasticsearchConfiguration() {
+) : ElasticsearchConfiguration() {
     override fun clientConfiguration(): ClientConfiguration {
         return ClientConfiguration.builder()
             .connectedTo(elasticsearchProperties.uris.first())

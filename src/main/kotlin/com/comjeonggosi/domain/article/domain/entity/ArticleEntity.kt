@@ -11,17 +11,17 @@ data class ArticleEntity(
     val id: Long? = null,
 
     @Column("title")
-    var title: String,
+    val title: String,
 
     @Column("content")
-    var content: String,
+    val content: String,
 
     @Column("author_id")
-    var authorId: Long,
+    val authorId: Long,
 
     @Column("category_id")
-    var categoryId: Long,
+    val categoryId: Long,
 
     @Column("is_deleted")
-    var isDeleted: Boolean = false,
+    val isDeleted: Boolean = false,
 ) : BaseEntity()
