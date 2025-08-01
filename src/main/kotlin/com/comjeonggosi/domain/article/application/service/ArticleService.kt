@@ -12,7 +12,7 @@ class ArticleService(
     private val articleRepository: ArticleRepository,
 ) {
     suspend fun getArticles(): Flow<ArticleResponse> {
-        return articleRepository.findAll().map { it.toResponse() }
+        return articleRepository.findAllByDeletedAtIsNull().map { it.toResponse() }
     }
 
     suspend fun getArticle(articleId: Long): ArticleResponse {
@@ -20,7 +20,7 @@ class ArticleService(
             ?: throw IllegalArgumentException("article not found")
     }
 
-    private fun ArticleEntity.toResponse(): ArticleResponse =
+    private fun ArticleEntity.toResponse() =
         ArticleResponse(
             id = this.id!!,
             title = this.title,

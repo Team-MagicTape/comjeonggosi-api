@@ -4,8 +4,12 @@ import com.comjeonggosi.domain.admin.article.presentation.dto.request.CreateArti
 import com.comjeonggosi.domain.admin.article.presentation.dto.request.UpdateArticleRequest
 import com.comjeonggosi.domain.article.domain.entity.ArticleEntity
 import com.comjeonggosi.domain.article.domain.repository.ArticleRepository
+import com.comjeonggosi.domain.article.presentation.dto.response.ArticleResponse
 import com.comjeonggosi.infra.security.holder.SecurityHolder
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 @Service
 class AdminArticleService(
@@ -36,7 +40,23 @@ class AdminArticleService(
         val article = articleRepository.findById(articleId) ?: throw IllegalArgumentException("article not found")
 
         articleRepository.save(article.copy(
-            isDeleted = true
+            deletedAt = Instant.now(),
         ))
     }
+
+    suspend fun getArticles(): Flow<ArticleResponse> {
+        return articleRepository.findAllByDeletedAtIsNull().map { it.toResponse() }
+    }
+
+    suspend fun getArticle(articleId: Long): ArticleResponse {
+        return articleRepository.findById(articleId)?.toResponse()
+            ?: throw IllegalArgumentException("article not found")
+    }
+
+    private fun ArticleEntity.toResponse() =
+        ArticleResponse(
+            id = this.id!!,
+            title = this.title,
+            content = this.content,
+        )
 }

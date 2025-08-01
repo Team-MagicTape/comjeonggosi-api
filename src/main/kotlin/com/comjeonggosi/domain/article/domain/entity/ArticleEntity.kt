@@ -4,6 +4,7 @@ import com.comjeonggosi.common.domain.entity.BaseEntity
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
+import java.time.Instant
 
 @Table(name = "articles")
 data class ArticleEntity(
@@ -22,6 +23,6 @@ data class ArticleEntity(
     @Column("category_id")
     val categoryId: Long,
 
-    @Column("is_deleted")
-    val isDeleted: Boolean = false,
+    @Column("deleted_at")
+    val deletedAt: Instant? = null,
 ) : BaseEntity()
