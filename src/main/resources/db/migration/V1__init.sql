@@ -21,10 +21,16 @@ CREATE TABLE articles (
     content TEXT NOT NULL,
     author_id BIGINT NOT NULL,
     category VARCHAR(50) NOT NULL,
-    is_deleted boolean NOT NULL,
+    deletedAt TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_articles_author FOREIGN KEY (author_id) REFERENCES users(id)
 );
 
 CREATE INDEX idx_articles_category ON articles(category);
+
+CREATE TABLE categories (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL
+);
