@@ -23,4 +23,10 @@ class AdminArticleController(
     @DeleteMapping("/{articleId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     suspend fun deleteArticle(@PathVariable articleId: Long) = adminArticleService.deleteArticle(articleId)
+
+    @GetMapping
+    suspend fun getArticles() = adminArticleService.getArticles()
+
+    @GetMapping("/{articleId}")
+    suspend fun getArticle(@PathVariable articleId: Long) = adminArticleService.getArticle(articleId)
 }
