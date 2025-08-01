@@ -37,4 +37,4 @@ CREATE TABLE articles (
     CONSTRAINT fk_articles_category FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
-CREATE INDEX idx_articles_category ON articles(category);
+CREATE INDEX idx_articles_category ON articles(category_id);
