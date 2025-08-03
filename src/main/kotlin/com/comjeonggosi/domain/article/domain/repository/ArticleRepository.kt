@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface ArticleRepository : CoroutineCrudRepository<ArticleEntity, Long> {
-    fun findAllByDeletedAtIsNull(): Flow<ArticleEntity>
+    fun findAllByDeletedAtIsNullAndCategoryIdOrderByCreatedAtDesc(categoryId: Long): Flow<ArticleEntity>
+    fun findAllByDeletedAtIsNullOrderByCreatedAtDesc(): Flow<ArticleEntity>
 }
