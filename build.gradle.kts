@@ -118,8 +118,13 @@ tasks.test {
 }
 
 tasks.asciidoctor {
-    inputs.dir(project.extra["snippetsDir"]!!)
     dependsOn(tasks.test)
+    sourceDir("src/docs/asciidoc")
+    attributes(
+        mapOf(
+            "snippets" to project.extra["snippetsDir"]
+        )
+    )
 }
 
 tasks.bootJar {

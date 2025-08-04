@@ -1,0 +1,23 @@
+= API Documentation
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+== 게시글 API
+
+=== 게시글 단건 조회
+
+`GET /articles/{articleId}`
+
+==== 요청
+
+include::{snippets}/articles/get-article/path-parameters.adoc[]
+include::{snippets}/articles/get-article/curl-request.adoc[]
+
+==== 응답
+
+include::{snippets}/articles/get-article/response-fields.adoc[]
+include::{snippets}/articles/get-article/http-response.adoc[]

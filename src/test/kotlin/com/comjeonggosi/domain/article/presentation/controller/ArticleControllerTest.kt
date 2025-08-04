@@ -34,7 +34,7 @@ class ArticleControllerTest {
     private lateinit var webTestClient: WebTestClient
 
     @RegisterExtension
-    val restDocumentation: RestDocumentationExtension = RestDocumentationExtension("custom")
+    val restDocumentation: RestDocumentationExtension = RestDocumentationExtension()
 
     @MockitoBean
     private lateinit var articleService: ArticleService
