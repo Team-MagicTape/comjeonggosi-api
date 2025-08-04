@@ -4,6 +4,7 @@ import com.comjeonggosi.domain.article.application.service.ArticleService
 import com.comjeonggosi.domain.article.presentation.dto.response.ArticleResponse
 import com.comjeonggosi.domain.category.presentation.dto.response.CategoryResponse
 import com.comjeonggosi.infra.security.jwt.provider.JwtProvider
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -26,7 +27,7 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 
-
+// ./gradlew asciidoctor 실행 후 build/docs/asciidoc/index.html 파일 생성
 @WebFluxTest(ArticleController::class)
 @AutoConfigureRestDocs
 class ArticleControllerTest {
@@ -92,6 +93,55 @@ class ArticleControllerTest {
                         fieldWithPath("category.id").description("카테고리 ID"),
                         fieldWithPath("category.name").description("카테고리 이름"),
                         fieldWithPath("category.description").description("카테고리 설명")
+                    )
+                )
+            )
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"])
+    @DisplayName("GET /articles : 게시글 목록 조회를 성공하고 200 OK와 데이터를 반환한다")
+    fun getArticles() {
+        // given
+        val mockResponse = flowOf(
+            ArticleResponse(
+                id = 1L,
+                title = "테스트 제목 1",
+                content = "테스트 내용 1",
+                category = CategoryResponse(id = 10L, name = "데이터베이스", description = "DB 설명")
+            ),
+            ArticleResponse(
+                id = 2L,
+                title = "테스트 제목 2",
+                content = "테스트 내용 2",
+                category = CategoryResponse(id = 11L, name = "알고리즘", description = "알고리즘 설명")
+            )
+        )
+
+        runBlocking {
+            whenever(articleService.getArticles()).thenReturn(mockResponse)
+        }
+
+        // when & then
+        webTestClient.get().uri("/articles")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$[0].id").isEqualTo(1L)
+            .jsonPath("$[0].title").isEqualTo("테스트 제목 1")
+            .jsonPath("$[1].id").isEqualTo(2L)
+            .jsonPath("$[1].title").isEqualTo("테스트 제목 2")
+            .consumeWith(
+                document(
+                    "articles/get-articles",
+                    responseFields(
+                        fieldWithPath("[].id").description("게시글 ID"),
+                        fieldWithPath("[].title").description("제목"),
+                        fieldWithPath("[].content").description("내용"),
+                        fieldWithPath("[].category").description("카테고리"),
+                        fieldWithPath("[].category.id").description("카테고리 ID"),
+                        fieldWithPath("[].category.name").description("카테고리 이름"),
+                        fieldWithPath("[].category.description").description("카테고리 설명")
                     )
                 )
             )
