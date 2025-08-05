@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.stereotype.Repository
 
 @Repository
-class QuizCustomRepository(
+class QuizQueryRepository(
     private val mongoTemplate: ReactiveMongoTemplate
 ) {
     suspend fun findRandomQuiz(categoryId: String?): QuizDocument? {
