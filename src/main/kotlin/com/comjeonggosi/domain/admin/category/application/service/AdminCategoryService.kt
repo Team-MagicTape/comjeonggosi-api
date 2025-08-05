@@ -1,8 +1,10 @@
 package com.comjeonggosi.domain.admin.category.application.service
 
+import com.comjeonggosi.common.exception.CustomException
 import com.comjeonggosi.domain.admin.category.presentation.dto.request.CreateCategoryRequest
 import com.comjeonggosi.domain.admin.category.presentation.dto.request.UpdateCategoryRequest
 import com.comjeonggosi.domain.category.domain.entity.CategoryEntity
+import com.comjeonggosi.domain.category.domain.error.CategoryErrorCode
 import com.comjeonggosi.domain.category.domain.repository.CategoryRepository
 import com.comjeonggosi.domain.category.presentation.dto.response.CategoryResponse
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +30,8 @@ class AdminCategoryService(
     }
 
     suspend fun updateCategory(categoryId: Long, request: UpdateCategoryRequest) {
-        val category = categoryRepository.findById(categoryId) ?: throw IllegalArgumentException("category not found")
+        val category = categoryRepository.findById(categoryId)
+            ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
 
         categoryRepository.save(
             category.copy(
@@ -39,7 +42,8 @@ class AdminCategoryService(
     }
 
     suspend fun deleteCategory(categoryId: Long) {
-        val category = categoryRepository.findById(categoryId) ?: throw IllegalArgumentException("category not found")
+        val category = categoryRepository.findById(categoryId)
+            ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
 
         categoryRepository.save(
             category.copy(
