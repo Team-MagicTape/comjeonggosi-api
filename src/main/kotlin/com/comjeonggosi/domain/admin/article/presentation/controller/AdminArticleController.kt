@@ -25,7 +25,7 @@ class AdminArticleController(
     suspend fun deleteArticle(@PathVariable articleId: Long) = adminArticleService.deleteArticle(articleId)
 
     @GetMapping
-    suspend fun getArticles() = adminArticleService.getArticles()
+    suspend fun getArticles(@RequestParam(required = false) categoryId: Long?) = adminArticleService.getArticles(categoryId)
 
     @GetMapping("/{articleId}")
     suspend fun getArticle(@PathVariable articleId: Long) = adminArticleService.getArticle(articleId)
