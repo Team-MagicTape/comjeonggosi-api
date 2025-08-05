@@ -60,6 +60,7 @@ dependencies {
     runtimeOnly("org.postgresql:r2dbc-postgresql")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
@@ -117,8 +118,13 @@ tasks.test {
 }
 
 tasks.asciidoctor {
-    inputs.dir(project.extra["snippetsDir"]!!)
     dependsOn(tasks.test)
+    sourceDir("src/docs/asciidoc")
+    attributes(
+        mapOf(
+            "snippets" to project.extra["snippetsDir"]
+        )
+    )
 }
 
 tasks.bootJar {
