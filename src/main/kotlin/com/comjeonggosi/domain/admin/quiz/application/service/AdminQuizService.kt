@@ -36,7 +36,7 @@ class AdminQuizService(
         return quizzes.map { it.toResponse() }
     }
 
-    suspend fun editQuiz(quizId: String, request: UpdateQuizRequest) {
+    suspend fun updateQuiz(quizId: String, request: UpdateQuizRequest) {
         val quiz = quizRepository.findById(quizId) ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
 
         quizRepository.save(

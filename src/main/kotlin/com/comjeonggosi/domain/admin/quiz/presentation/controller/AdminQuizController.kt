@@ -21,8 +21,8 @@ class AdminQuizController(
 
     @PatchMapping("/{quizId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun editQuiz(@PathVariable quizId: String, @RequestBody request: UpdateQuizRequest) =
-        adminQuizService.editQuiz(quizId, request)
+    suspend fun updateQuiz(@PathVariable quizId: String, @RequestBody request: UpdateQuizRequest) =
+        adminQuizService.updateQuiz(quizId, request)
 
     @DeleteMapping("/{quizId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
