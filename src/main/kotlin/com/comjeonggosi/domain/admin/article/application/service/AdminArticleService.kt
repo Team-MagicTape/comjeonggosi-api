@@ -53,8 +53,13 @@ class AdminArticleService(
         )
     }
 
-    suspend fun getArticles(): Flow<ArticleResponse> {
-        return articleRepository.findAllByDeletedAtIsNull().map { it.toResponse() }
+    fun getArticles(categoryId: Long?): Flow<ArticleResponse> {
+        val articles = if (categoryId == null) {
+            articleRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc()
+        } else {
+            articleRepository.findAllByDeletedAtIsNullAndCategoryIdOrderByCreatedAtDesc(categoryId)
+        }
+        return articles.map { it.toResponse() }
     }
 
     suspend fun getArticle(articleId: Long): ArticleResponse {
