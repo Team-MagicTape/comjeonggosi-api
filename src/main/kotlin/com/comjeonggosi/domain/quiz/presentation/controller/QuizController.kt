@@ -1,10 +1,8 @@
 package com.comjeonggosi.domain.quiz.presentation.controller
 
 import com.comjeonggosi.domain.quiz.application.service.QuizService
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import com.comjeonggosi.domain.quiz.presentation.dto.request.SolveQuizRequest
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/quizzes")
@@ -12,5 +10,13 @@ class QuizController(
     private val quizService: QuizService
 ) {
     @GetMapping
-    suspend fun getRandomQuiz(@RequestParam(required = false) categoryId: String?) = quizService.getRandomQuiz(categoryId)
+    suspend fun getRandomQuiz(@RequestParam(required = false) categoryId: String?) =
+        quizService.getRandomQuiz(categoryId)
+
+    @PostMapping("/{quizId}/solve")
+    suspend fun solveQuiz(@PathVariable quizId: String, @RequestBody request: SolveQuizRequest) =
+        quizService.solve(quizId, request)
+
+    @GetMapping("/submits/my")
+    suspend fun getMySubmits() = quizService.getMySubmits()
 }

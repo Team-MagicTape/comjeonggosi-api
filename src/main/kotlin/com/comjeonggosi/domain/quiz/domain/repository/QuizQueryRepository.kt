@@ -13,9 +13,9 @@ class QuizQueryRepository(
     private val mongoTemplate: ReactiveMongoTemplate
 ) {
     suspend fun findRandomQuiz(categoryId: String?): QuizDocument? {
-        val criteria = Criteria.where("deletedAt").`is`(null)
+        val criteria = Criteria.where("deleted_at").`is`(null)
         if (categoryId != null) {
-            criteria.and("categoryId").`is`(categoryId)
+            criteria.and("category_id").`is`(categoryId)
         }
         val match: MatchOperation = Aggregation.match(criteria)
         val sample = Aggregation.sample(1)

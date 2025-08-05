@@ -2,6 +2,7 @@ package com.comjeonggosi.common.exception.handler
 
 import com.comjeonggosi.common.exception.CustomException
 import com.comjeonggosi.common.exception.response.ErrorResponse
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -13,6 +14,8 @@ import org.springframework.web.server.UnsupportedMediaTypeStatusException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
+    private val log = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+
     @ExceptionHandler(CustomException::class)
     suspend fun handleCustomException(ex: CustomException, exchange: ServerWebExchange) : ResponseEntity<ErrorResponse> {
         val errorResponse = ErrorResponse(
@@ -85,6 +88,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException::class)
     suspend fun handleRuntimeException(ex: RuntimeException, exchange: ServerWebExchange): ResponseEntity<ErrorResponse> {
+        log.warn(ex.message, ex)
         val errorResponse = ErrorResponse(
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             code = "INTERNAL_SERVER_ERROR",

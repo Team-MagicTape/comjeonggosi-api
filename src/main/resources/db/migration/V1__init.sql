@@ -38,3 +38,14 @@ CREATE TABLE articles (
 );
 
 CREATE INDEX idx_articles_category ON articles(category_id);
+
+CREATE TABLE submits (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    quiz_id VARCHAR(255) NOT NULL,
+    answer VARCHAR(255) NOT NULL,
+    is_corrected BOOLEAN NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_submits_user FOREIGN KEY (user_id) REFERENCES users(id)
+);
