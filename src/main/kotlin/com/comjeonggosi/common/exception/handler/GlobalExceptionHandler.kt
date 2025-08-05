@@ -2,6 +2,7 @@ package com.comjeonggosi.common.exception.handler
 
 import com.comjeonggosi.common.exception.CustomException
 import com.comjeonggosi.common.exception.response.ErrorResponse
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -9,12 +10,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.bind.support.WebExchangeBindException
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.ServerWebInputException
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.server.UnsupportedMediaTypeStatusException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
+    private val log = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
+
     @ExceptionHandler(CustomException::class)
-    suspend fun handleCustomException(ex: CustomException, exchange: ServerWebExchange) : ResponseEntity<ErrorResponse> {
+    fun handleCustomException(ex: CustomException, exchange: ServerWebExchange): ResponseEntity<ErrorResponse> {
+        log.warn(ex.message, ex)
+
         val errorResponse = ErrorResponse(
             status = ex.status,
             code = ex.code,
@@ -26,7 +32,12 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException::class)
-    suspend fun handleIllegalArgumentException(ex: IllegalArgumentException, exchange: ServerWebExchange): ResponseEntity<ErrorResponse> {
+    fun handleIllegalArgumentException(
+        ex: IllegalArgumentException,
+        exchange: ServerWebExchange
+    ): ResponseEntity<ErrorResponse> {
+        log.warn(ex.message, ex)
+
         val errorResponse = ErrorResponse(
             status = HttpStatus.BAD_REQUEST.value(),
             code = "INVALID_PARAMETER",
@@ -37,9 +48,14 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(WebExchangeBindException::class)
-    suspend fun handleValidationException(ex: WebExchangeBindException, exchange: ServerWebExchange): ResponseEntity<ErrorResponse> {
+    fun handleValidationException(
+        ex: WebExchangeBindException,
+        exchange: ServerWebExchange
+    ): ResponseEntity<ErrorResponse> {
+        log.warn(ex.message, ex)
+
         val errorMessage = ex.bindingResult.fieldErrors
-            .joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
+            .joinToString(", ") { "{it.field}: {it.defaultMessage}" }
 
         val errorResponse = ErrorResponse(
             status = HttpStatus.BAD_REQUEST.value(),
@@ -51,7 +67,12 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ServerWebInputException::class)
-    suspend fun handleServerWebInputException(ex: ServerWebInputException, exchange: ServerWebExchange): ResponseEntity<ErrorResponse> {
+    fun handleServerWebInputException(
+        ex: ServerWebInputException,
+        exchange: ServerWebExchange
+    ): ResponseEntity<ErrorResponse> {
+        log.warn(ex.message, ex)
+
         val errorResponse = ErrorResponse(
             status = HttpStatus.BAD_REQUEST.value(),
             code = "INVALID_INPUT",
@@ -62,7 +83,12 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnsupportedMediaTypeStatusException::class)
-    suspend fun handleUnsupportedMediaTypeException(ex: UnsupportedMediaTypeStatusException, exchange: ServerWebExchange): ResponseEntity<ErrorResponse> {
+    fun handleUnsupportedMediaTypeException(
+        ex: UnsupportedMediaTypeStatusException,
+        exchange: ServerWebExchange
+    ): ResponseEntity<ErrorResponse> {
+        log.warn(ex.message, ex)
+
         val errorResponse = ErrorResponse(
             status = HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(),
             code = "UNSUPPORTED_MEDIA_TYPE",
@@ -73,7 +99,12 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException::class)
-    suspend fun handleAccessDeniedException(ex: AccessDeniedException, exchange: ServerWebExchange): ResponseEntity<ErrorResponse> {
+    fun handleAccessDeniedException(
+        ex: AccessDeniedException,
+        exchange: ServerWebExchange
+    ): ResponseEntity<ErrorResponse> {
+        log.warn(ex.message, ex)
+
         val errorResponse = ErrorResponse(
             status = HttpStatus.FORBIDDEN.value(),
             code = "ACCESS_DENIED",
@@ -84,7 +115,12 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException::class)
-    suspend fun handleRuntimeException(ex: RuntimeException, exchange: ServerWebExchange): ResponseEntity<ErrorResponse> {
+    fun handleRuntimeException(
+        ex: RuntimeException,
+        exchange: ServerWebExchange
+    ): ResponseEntity<ErrorResponse> {
+        log.error(ex.message, ex)
+
         val errorResponse = ErrorResponse(
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             code = "INTERNAL_SERVER_ERROR",
@@ -95,7 +131,9 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception::class)
-    suspend fun handleGenericException(ex: Exception, exchange: ServerWebExchange): ResponseEntity<ErrorResponse> {
+    fun handleGenericException(ex: Exception, exchange: ServerWebExchange): ResponseEntity<ErrorResponse> {
+        log.error(ex.message, ex)
+
         val errorResponse = ErrorResponse(
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             code = "UNKNOWN_ERROR",
