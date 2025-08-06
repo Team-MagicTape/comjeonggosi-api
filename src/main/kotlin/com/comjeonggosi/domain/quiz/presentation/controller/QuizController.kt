@@ -18,5 +18,6 @@ class QuizController(
         quizService.solve(quizId, request)
 
     @GetMapping("/submissions/my")
-    suspend fun getMySubmissions() = quizService.getMySubmissions()
+    suspend fun getMySubmissions(@RequestParam(required = false) isCorrected: Boolean?) =
+        quizService.getMySubmissions(isCorrected)
 }

@@ -54,9 +54,13 @@ class QuizService(
         )
     }
 
-    suspend fun getMySubmissions(): Flow<QuizSubmissionResponse> {
+    suspend fun getMySubmissions(isCorrected: Boolean?): Flow<QuizSubmissionResponse> {
         val user = securityHolder.getUser()
-        val submissions = submissionRepository.findAllByUserId(user.id!!)
+        val submissions = if (isCorrected != null) {
+            submissionRepository.findAllByUserIdAndIsCorrected(user.id!!, isCorrected)
+        } else {
+            submissionRepository.findAllByUserId(user.id!!)
+        }
 
         return submissions.map {
             val quiz = quizRepository.findById(it.quizId) ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)

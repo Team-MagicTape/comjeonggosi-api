@@ -36,3 +36,46 @@ include::{snippets}/articles/get-articles/curl-request.adoc[]
 
 include::{snippets}/articles/get-articles/response-fields.adoc[]
 include::{snippets}/articles/get-articles/http-response.adoc[]
+
+== 퀴즈 API
+
+=== 퀴즈 랜덤 조회
+
+`GET /quizzes`
+
+==== 요청
+
+include::{snippets}/quizzes/get-random-quiz/curl-request.adoc[]
+
+==== 응답
+
+include::{snippets}/quizzes/get-random-quiz/response-fields.adoc[]
+include::{snippets}/quizzes/get-random-quiz/http-response.adoc[]
+
+=== 퀴즈 풀기
+
+`POST /quizzes/{quizId}/solve`
+
+==== 요청
+
+include::{snippets}/quizzes/solve/path-parameters.adoc[]
+include::{snippets}/quizzes/solve/request-fields.adoc[]
+include::{snippets}/quizzes/solve/curl-request.adoc[]
+
+==== 응답
+
+include::{snippets}/quizzes/solve/response-fields.adoc[]
+include::{snippets}/quizzes/solve/http-response.adoc[]
+
+=== 내 제출 현황 조회
+
+`GET /quizzes/submissions/my`
+
+==== 요청
+
+include::{snippets}/quizzes/get-my-submissions/curl-request.adoc[]
+
+==== 응답
+
+include::{snippets}/quizzes/get-my-submissions/response-fields.adoc[]
+include::{snippets}/quizzes/get-my-submissions/http-response.adoc[]
