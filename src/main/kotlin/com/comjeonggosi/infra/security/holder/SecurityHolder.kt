@@ -21,10 +21,8 @@ class SecurityHolder(
             ?: throw CustomException(UserErrorCode.USER_NOT_FOUND)
     }
 
-    suspend fun getUserOrNull(): UserEntity? {
-        val userId = findUserId()
-
-        return userId?.let { userRepository.findById(it) }
+    suspend fun isAuthenticated(): Boolean {
+        return findUserId() != null
     }
 
     private suspend fun findUserId(): Long? {
