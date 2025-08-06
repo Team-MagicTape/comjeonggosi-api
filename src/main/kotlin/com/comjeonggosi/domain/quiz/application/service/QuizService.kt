@@ -1,6 +1,9 @@
 package com.comjeonggosi.domain.quiz.application.service
 
 import com.comjeonggosi.common.exception.CustomException
+import com.comjeonggosi.domain.category.domain.error.CategoryErrorCode
+import com.comjeonggosi.domain.category.domain.repository.CategoryRepository
+import com.comjeonggosi.domain.category.presentation.dto.response.CategoryResponse
 import com.comjeonggosi.domain.quiz.domain.document.QuizDocument
 import com.comjeonggosi.domain.quiz.domain.entity.SubmissionEntity
 import com.comjeonggosi.domain.quiz.domain.error.QuizErrorCode
@@ -21,10 +24,11 @@ class QuizService(
     private val quizRepository: QuizRepository,
     private val quizQueryRepository: QuizQueryRepository,
     private val securityHolder: SecurityHolder,
-    private val submissionRepository: SubmissionRepository
+    private val submissionRepository: SubmissionRepository,
+    private val categoryRepository: CategoryRepository
 ) {
-    suspend fun getRandomQuiz(categoryId: String?): QuizResponse {
-        val quiz = quizQueryRepository.findRandomQuiz(categoryId)
+    suspend fun getRandomQuiz(categoryId: Long?): QuizResponse {
+        val quiz = quizQueryRepository.findRandomQuiz(categoryId.toString())
             ?: throw CustomException(QuizErrorCode.PREPARING_QUIZ)
         return quiz.toResponse()
     }
@@ -64,12 +68,20 @@ class QuizService(
         }
     }
 
-    private fun QuizDocument.toResponse() =
-        QuizResponse(
+    private suspend fun QuizDocument.toResponse(): QuizResponse {
+        val category = categoryRepository.findById(this.categoryId.toLong())
+            ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
+
+        return QuizResponse(
             id = this.id!!,
             content = this.content,
             answer = this.answer,
             options = this.options,
-            categoryId = this.categoryId.toLong()
+            category = CategoryResponse(
+                id = category.id!!,
+                name = category.name,
+                description = category.description,
+            )
         )
+    }
 }

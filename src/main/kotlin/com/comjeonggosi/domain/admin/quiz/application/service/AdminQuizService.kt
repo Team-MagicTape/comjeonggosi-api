@@ -3,6 +3,9 @@ package com.comjeonggosi.domain.admin.quiz.application.service
 import com.comjeonggosi.common.exception.CustomException
 import com.comjeonggosi.domain.admin.quiz.presentation.request.dto.CreateQuizRequest
 import com.comjeonggosi.domain.admin.quiz.presentation.request.dto.UpdateQuizRequest
+import com.comjeonggosi.domain.category.domain.error.CategoryErrorCode
+import com.comjeonggosi.domain.category.domain.repository.CategoryRepository
+import com.comjeonggosi.domain.category.presentation.dto.response.CategoryResponse
 import com.comjeonggosi.domain.quiz.domain.document.QuizDocument
 import com.comjeonggosi.domain.quiz.domain.error.QuizErrorCode
 import com.comjeonggosi.domain.quiz.domain.repository.QuizRepository
@@ -14,14 +17,18 @@ import java.time.Instant
 
 @Service
 class AdminQuizService(
-    private val quizRepository: QuizRepository
+    private val quizRepository: QuizRepository,
+    private val categoryRepository: CategoryRepository
 ) {
     suspend fun createQuiz(request: CreateQuizRequest) {
+        val category = categoryRepository.findById(request.categoryId)
+            ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
+
         val quiz = QuizDocument(
             content = request.content,
             answer = request.answer,
             options = request.options ?: emptyList(),
-            categoryId = request.categoryId.toString()
+            categoryId = category.id.toString()
         )
 
         quizRepository.save(quiz)
@@ -59,12 +66,20 @@ class AdminQuizService(
         )
     }
 
-    private fun QuizDocument.toResponse() =
-        QuizResponse(
+    private suspend fun QuizDocument.toResponse(): QuizResponse {
+        val category = categoryRepository.findById(this.categoryId.toLong())
+            ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
+
+        return QuizResponse(
             id = this.id!!,
             content = this.content,
             answer = this.answer,
             options = this.options,
-            categoryId = this.categoryId.toLong()
+            category = CategoryResponse(
+                id = category.id!!,
+                name = category.name,
+                description = category.description,
+            )
         )
+    }
 }

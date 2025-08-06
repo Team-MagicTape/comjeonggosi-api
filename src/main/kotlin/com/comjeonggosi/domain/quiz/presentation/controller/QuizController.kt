@@ -10,7 +10,7 @@ class QuizController(
     private val quizService: QuizService
 ) {
     @GetMapping
-    suspend fun getRandomQuiz(@RequestParam(required = false) categoryId: String?) =
+    suspend fun getRandomQuiz(@RequestParam(required = false) categoryId: Long?) =
         quizService.getRandomQuiz(categoryId)
 
     @PostMapping("/{quizId}/solve")
