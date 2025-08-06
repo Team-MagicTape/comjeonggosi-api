@@ -17,6 +17,6 @@ class QuizController(
     suspend fun solveQuiz(@PathVariable quizId: String, @RequestBody request: SolveQuizRequest) =
         quizService.solve(quizId, request)
 
-    @GetMapping("/submits/my")
-    suspend fun getMySubmits() = quizService.getMySubmits()
+    @GetMapping("/submissions/my")
+    suspend fun getMySubmissions() = quizService.getMySubmissions()
 }

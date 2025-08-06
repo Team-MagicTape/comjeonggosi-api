@@ -2,14 +2,14 @@ package com.comjeonggosi.domain.quiz.application.service
 
 import com.comjeonggosi.common.exception.CustomException
 import com.comjeonggosi.domain.quiz.domain.document.QuizDocument
-import com.comjeonggosi.domain.quiz.domain.entity.SubmitEntity
+import com.comjeonggosi.domain.quiz.domain.entity.SubmissionEntity
 import com.comjeonggosi.domain.quiz.domain.error.QuizErrorCode
 import com.comjeonggosi.domain.quiz.domain.repository.QuizQueryRepository
 import com.comjeonggosi.domain.quiz.domain.repository.QuizRepository
-import com.comjeonggosi.domain.quiz.domain.repository.SubmitRepository
+import com.comjeonggosi.domain.quiz.domain.repository.SubmissionRepository
 import com.comjeonggosi.domain.quiz.presentation.dto.request.SolveQuizRequest
 import com.comjeonggosi.domain.quiz.presentation.dto.response.QuizResponse
-import com.comjeonggosi.domain.quiz.presentation.dto.response.QuizSubmitResponse
+import com.comjeonggosi.domain.quiz.presentation.dto.response.QuizSubmissionResponse
 import com.comjeonggosi.domain.quiz.presentation.dto.response.SolveQuizResponse
 import com.comjeonggosi.infra.security.holder.SecurityHolder
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +21,7 @@ class QuizService(
     private val quizRepository: QuizRepository,
     private val quizQueryRepository: QuizQueryRepository,
     private val securityHolder: SecurityHolder,
-    private val submitRepository: SubmitRepository
+    private val submissionRepository: SubmissionRepository
 ) {
     suspend fun getRandomQuiz(categoryId: String?): QuizResponse {
         val quiz = quizQueryRepository.findRandomQuiz(categoryId)
@@ -32,16 +32,16 @@ class QuizService(
     suspend fun solve(quizId: String, request: SolveQuizRequest): SolveQuizResponse {
         val quiz = quizRepository.findById(quizId) ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
         val isCorrect = quiz.answer == request.answer
-        val user = securityHolder.getUserOrNull()
 
-        if (user != null) {
-            val submit = SubmitEntity(
+        if (securityHolder.isAuthenticated()) {
+            val user = securityHolder.getUser()
+            val submission = SubmissionEntity(
                 userId = user.id!!,
                 quizId = quiz.id!!,
                 answer = request.answer,
                 isCorrected = isCorrect,
             )
-            submitRepository.save(submit)
+            submissionRepository.save(submission)
         }
 
         return SolveQuizResponse(
@@ -50,13 +50,13 @@ class QuizService(
         )
     }
 
-    suspend fun getMySubmits(): Flow<QuizSubmitResponse> {
+    suspend fun getMySubmissions(): Flow<QuizSubmissionResponse> {
         val user = securityHolder.getUser()
-        val submits = submitRepository.findAllByUserId(user.id!!)
+        val submissions = submissionRepository.findAllByUserId(user.id!!)
 
-        return submits.map {
+        return submissions.map {
             val quiz = quizRepository.findById(it.quizId) ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
-            QuizSubmitResponse(
+            QuizSubmissionResponse(
                 quiz = quiz.toResponse(),
                 isCorrected = it.isCorrected,
                 userAnswer = it.answer
