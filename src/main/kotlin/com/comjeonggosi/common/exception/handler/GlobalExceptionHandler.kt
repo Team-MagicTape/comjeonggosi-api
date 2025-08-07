@@ -115,7 +115,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException::class)
-    fun handleRuntimeException(
+    suspend fun handleRuntimeException(
         ex: RuntimeException,
         exchange: ServerWebExchange
     ): ResponseEntity<ErrorResponse> {

@@ -119,7 +119,7 @@ class ArticleControllerTest {
         )
 
         runBlocking {
-            whenever(articleService.getArticles()).thenReturn(mockResponse)
+            whenever(articleService.getArticles(null)).thenReturn(mockResponse)
         }
 
         // when & then
