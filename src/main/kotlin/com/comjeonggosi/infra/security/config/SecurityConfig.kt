@@ -62,6 +62,8 @@ class SecurityConfig(
                 .pathMatchers("/auth/**").permitAll()
                 .pathMatchers("/actuator/**").permitAll()
                 .pathMatchers("/oauth2/**").permitAll()
+                .pathMatchers("/quizzes/**").permitAll()
+                .pathMatchers("/admin/quizzes/**").permitAll()
                 .anyExchange().authenticated()
         }
         .oauth2Login { oauth2 ->
