@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository
 class QuizQueryRepository(
     private val mongoTemplate: ReactiveMongoTemplate
 ) {
-    suspend fun findRandomQuiz(categoryId: String?): QuizDocument? {
+    suspend fun findRandomQuiz(categoryId: Long?): QuizDocument? {
         val criteria = Criteria.where("deleted_at").`is`(null)
         if (categoryId != null) {
             criteria.and("category_id").`is`(categoryId)

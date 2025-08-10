@@ -20,7 +20,7 @@ data class QuizDocument(
     val options: List<String>,
 
     @Field("category_id")
-    val categoryId: String,
+    val categoryId: Long,
 
     @Field("deleted_at")
     val deletedAt: Instant? = null,

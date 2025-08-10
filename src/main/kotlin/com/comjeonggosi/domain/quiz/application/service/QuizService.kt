@@ -28,7 +28,7 @@ class QuizService(
     private val categoryRepository: CategoryRepository
 ) {
     suspend fun getRandomQuiz(categoryId: Long?): QuizResponse {
-        val quiz = quizQueryRepository.findRandomQuiz(categoryId?.toString())
+        val quiz = quizQueryRepository.findRandomQuiz(categoryId)
             ?: throw CustomException(QuizErrorCode.PREPARING_QUIZ)
         return quiz.toResponse()
     }

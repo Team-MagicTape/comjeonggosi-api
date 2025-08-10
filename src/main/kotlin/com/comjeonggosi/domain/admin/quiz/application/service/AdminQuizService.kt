@@ -28,7 +28,7 @@ class AdminQuizService(
             content = request.content,
             answer = request.answer,
             options = request.options ?: emptyList(),
-            categoryId = category.id.toString()
+            categoryId = category.id!!
         )
 
         quizRepository.save(quiz)
@@ -51,7 +51,7 @@ class AdminQuizService(
                 content = request.content ?: quiz.content,
                 answer = request.answer ?: quiz.answer,
                 options = request.options ?: quiz.options,
-                categoryId = request.categoryId?.toString() ?: quiz.categoryId
+                categoryId = request.categoryId ?: quiz.categoryId
             )
         )
     }
