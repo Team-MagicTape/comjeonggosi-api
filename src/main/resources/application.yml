@@ -95,3 +95,10 @@ frontend:
 cookie:
   secure: ${COOKIE_SECURE}
   same-site: ${COOKIE_SAME_SITE}
+
+aws:
+  region: ${AWS_REGION}
+  ses:
+    access-key: ${AWS_SES_ACCESS_KEY}
+    secret-key: ${AWS_SES_SECRET_KEY}
+    source: ${AWS_SES_SOURCE}
