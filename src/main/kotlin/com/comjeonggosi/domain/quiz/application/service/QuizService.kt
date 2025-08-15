@@ -57,7 +57,7 @@ class QuizService(
     suspend fun getMySubmissions(isCorrected: Boolean?): Flow<QuizSubmissionResponse> {
         val user = securityHolder.getUser()
         val submissions = if (isCorrected != null) {
-            submissionRepository.findAllByUserIdAndIsCorrectedOrOrderByCreatedAtDesc(user.id!!, isCorrected)
+            submissionRepository.findAllByUserIdAndIsCorrectedOrderByCreatedAtDesc(user.id!!, isCorrected)
         } else {
             submissionRepository.findAllByUserIdOrderByCreatedAtDesc(user.id!!)
         }
