@@ -34,7 +34,7 @@ class AdminQuizService(
         quizRepository.save(quiz)
     }
 
-    suspend fun getQuizzes(categoryId: String?): Flow<QuizResponse> {
+    suspend fun getQuizzes(categoryId: Long?): Flow<QuizResponse> {
         val quizzes = if (categoryId != null) {
             quizRepository.findAllByCategoryIdAndDeletedAtIsNull(categoryId)
         } else {
@@ -67,7 +67,7 @@ class AdminQuizService(
     }
 
     private suspend fun QuizDocument.toResponse(): QuizResponse {
-        val category = categoryRepository.findById(this.categoryId.toLong())
+        val category = categoryRepository.findById(this.categoryId)
             ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
 
         return QuizResponse(

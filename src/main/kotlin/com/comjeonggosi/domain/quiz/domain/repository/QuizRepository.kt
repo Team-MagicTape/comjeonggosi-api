@@ -6,5 +6,5 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 interface QuizRepository : CoroutineCrudRepository<QuizDocument, String> {
     fun findAllByDeletedAtIsNull(): Flow<QuizDocument>
-    fun findAllByCategoryIdAndDeletedAtIsNull(categoryId: String): Flow<QuizDocument>
+    fun findAllByCategoryIdAndDeletedAtIsNull(categoryId: Long): Flow<QuizDocument>
 }

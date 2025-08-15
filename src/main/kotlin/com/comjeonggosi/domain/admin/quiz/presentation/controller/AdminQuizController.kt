@@ -16,7 +16,7 @@ class AdminQuizController(
     suspend fun createQuiz(@RequestBody request: CreateQuizRequest) = adminQuizService.createQuiz(request)
 
     @GetMapping
-    suspend fun getQuizzes(@RequestParam(required = false) categoryId: String?) =
+    suspend fun getQuizzes(@RequestParam(required = false) categoryId: Long?) =
         adminQuizService.getQuizzes(categoryId)
 
     @PatchMapping("/{quizId}")
