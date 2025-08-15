@@ -5,6 +5,9 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 interface SubmissionRepository : CoroutineCrudRepository<SubmissionEntity, Long> {
-    fun findAllByUserId(userId: Long): Flow<SubmissionEntity>
-    fun findAllByUserIdAndIsCorrected(userId: Long, isCorrected: Boolean): Flow<SubmissionEntity>
+    fun findAllByUserIdOrderByCreatedAtDesc(userId: Long): Flow<SubmissionEntity>
+    fun findAllByUserIdAndIsCorrectedOrOrderByCreatedAtDesc(
+        userId: Long,
+        isCorrected: Boolean,
+    ): Flow<SubmissionEntity>
 }
