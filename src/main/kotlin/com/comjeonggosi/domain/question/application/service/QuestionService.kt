@@ -1,6 +1,7 @@
 package com.comjeonggosi.domain.question.application.service
 
 import com.comjeonggosi.common.exception.CustomException
+import com.comjeonggosi.domain.category.domain.repository.CategoryRepository
 import com.comjeonggosi.domain.question.domain.entity.QuestionDeliveryEntity
 import com.comjeonggosi.domain.question.domain.entity.QuestionEntity
 import com.comjeonggosi.domain.question.domain.entity.QuestionSubscriptionCategoryEntity
@@ -42,7 +43,8 @@ class QuestionService(
     private val questionSubscriptionRepository: QuestionSubscriptionRepository,
     private val templateService: TemplateService,
     private val transactionalOperator: TransactionalOperator,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val categoryRepository: CategoryRepository
 ) {
     private val log = logger()
 
@@ -208,11 +210,20 @@ class QuestionService(
     )
 
     private suspend fun QuestionSubscriptionEntity.toResponse(): QuestionSubscriptionResponse {
-        val categoryIds = questionSubscriptionCategoryRepository
+        val categories = questionSubscriptionCategoryRepository
             .findAllBySubscriptionId(id!!)
-            .map { it.categoryId }
+            .map { (_, _, categoryId) ->
+                categoryRepository.findById(categoryId)!!.let {
+                    QuestionSubscriptionResponse.Category(
+                        id = it.id!!,
+                        name = it.name
+                    ) }
+                }
             .toList()
 
-        return QuestionSubscriptionResponse(hour, categoryIds)
+        return QuestionSubscriptionResponse(
+            hour = hour,
+            categories = categories
+        )
     }
 }
