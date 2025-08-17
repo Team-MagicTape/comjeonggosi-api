@@ -68,21 +68,11 @@ class QuestionService(
             )
         }
         if (toAdd.isNotEmpty())
-            questionSubscriptionCategoryRepository.saveAll(toAdd)
+            questionSubscriptionCategoryRepository.saveAll(toAdd).collect()
 
         val toRemove = current.filter { it.categoryId !in newIds }.toList()
         if (toRemove.isNotEmpty())
             questionSubscriptionCategoryRepository.deleteAll(toRemove)
-
-        subscription.toResponse()
-    }
-
-    suspend fun unsubscribe() {
-        val userId = securityHolder.getUserId()
-        val subscription = questionSubscriptionRepository.findByUserId(userId)
-            ?: throw CustomException(QuestionSubscriptionErrorCode.QUESTION_SUBSCRIPTION_NOT_FOUND)
-
-        questionSubscriptionRepository.delete(subscription)
     }
 
     suspend fun getSubscription(): QuestionSubscriptionResponse {
