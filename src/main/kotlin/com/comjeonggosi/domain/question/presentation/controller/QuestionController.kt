@@ -20,7 +20,4 @@ class QuestionController(
 
     @PostMapping("/subscribe")
     suspend fun subscribe(@RequestBody request: SubscribeQuestionRequest) = questionService.subscribe(request)
-
-    @PostMapping("/unsubscribe")
-    suspend fun unsubscribe() = questionService.unsubscribe()
 }
