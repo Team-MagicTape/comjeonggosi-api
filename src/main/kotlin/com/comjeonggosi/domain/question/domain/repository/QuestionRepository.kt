@@ -6,5 +6,5 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 interface QuestionRepository: CoroutineCrudRepository<QuestionEntity, Long> {
     fun findAllByCategoryIdAndDayLessThanEqual(categoryId: Long, day: Long): Flow<QuestionEntity>
-    fun findByCategoryIdAndDay(categoryId: Long, day: Long): QuestionEntity?
+    suspend fun findByCategoryIdAndDay(categoryId: Long, day: Long): QuestionEntity?
 }
