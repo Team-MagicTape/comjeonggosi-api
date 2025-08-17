@@ -33,11 +33,4 @@ class EmailService(
             log.error("Email send failed for: $to", error)
         }
     }
-    
-    suspend fun sendBulkEmails(emails: List<Triple<String, String, String>>) {
-        emails.forEach { (to, subject, body) ->
-            sendEmail(to, subject, body)
-            delay(100)
-        }
-    }
 }
