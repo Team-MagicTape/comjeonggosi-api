@@ -32,7 +32,6 @@ class SecurityConfig(
     @Bean
     fun roleHierarchy(): RoleHierarchy = RoleHierarchyImpl.fromHierarchy("$ADMIN > $USER")
 
-
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val config = CorsConfiguration()
@@ -64,6 +63,7 @@ class SecurityConfig(
                 .pathMatchers("/oauth2/**").permitAll()
                 .pathMatchers("/quizzes/**").permitAll()
                 .pathMatchers("/admin/quizzes/**").permitAll()
+                .pathMatchers("/admin/**").permitAll()
                 .anyExchange().authenticated()
         }
         .oauth2Login { oauth2 ->

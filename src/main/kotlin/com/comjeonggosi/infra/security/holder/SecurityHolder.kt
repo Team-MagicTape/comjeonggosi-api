@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component
 
 @Component
 class SecurityHolder {
+    suspend fun getUserId(): Long {
+        return getUser().id!!
+    }
+
     suspend fun getUser(): UserEntity {
         return ReactiveSecurityContextHolder.getContext()
             .awaitSingle()
