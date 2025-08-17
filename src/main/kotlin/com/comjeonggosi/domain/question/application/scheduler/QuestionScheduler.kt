@@ -1,23 +1,29 @@
 package com.comjeonggosi.domain.question.application.scheduler
 
 import com.comjeonggosi.domain.question.application.service.QuestionService
-import kotlinx.coroutines.runBlocking
+import com.comjeonggosi.logger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import java.time.LocalTime
 
 @Component
 class QuestionScheduler(
     private val questionService: QuestionService
 ) {
-    @Scheduled(cron = "0 * * * * ?")
-    fun sendQuestions() {
-        val now = LocalTime.now()
-        val hour = now.hour
-        val minute = now.minute
+    private val log = logger()
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-        runBlocking {
-            questionService.sendQuestions(hour, minute)
+    @Scheduled(cron = "0 0 * * * ?")
+    fun send() {
+        scope.launch {
+            try {
+                questionService.send()
+            } catch (e: Exception) {
+                log.error("질문 전송 실패", e)
+            }
         }
     }
 }
