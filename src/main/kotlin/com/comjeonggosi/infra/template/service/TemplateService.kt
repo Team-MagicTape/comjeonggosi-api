@@ -3,6 +3,7 @@ package com.comjeonggosi.infra.template.service
 import com.comjeonggosi.infra.cache.service.CacheService
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
+import org.springframework.web.util.HtmlUtils
 import java.time.Duration
 
 @Service
@@ -22,7 +23,9 @@ class TemplateService(
     fun renderTemplate(template: String, variables: Map<String, Any>): String {
         var result = template
         variables.forEach { (key, value) ->
-            result = result.replace("{{$key}}", value.toString())
+            HtmlUtils.htmlEscape(value.toString()).let {
+                result = result.replace("{{$key}}", it)
+            }
         }
         return result
     }
