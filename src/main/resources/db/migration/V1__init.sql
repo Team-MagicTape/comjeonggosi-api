@@ -54,3 +54,64 @@ CREATE TABLE submissions
     updated_at   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_submissions_user FOREIGN KEY (user_id) REFERENCES users (id)
 );
+
+CREATE TABLE questions
+(
+    id          BIGSERIAL PRIMARY KEY,
+    day         BIGINT       NOT NULL,
+    category_id BIGINT       NOT NULL,
+    title       VARCHAR(255) NOT NULL,
+    content     TEXT         NOT NULL,
+    answer      TEXT         NOT NULL,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_questions_category FOREIGN KEY (category_id) REFERENCES categories (id)
+);
+
+CREATE TABLE question_subscriptions
+(
+    id            BIGSERIAL PRIMARY KEY,
+    user_id       BIGINT    NOT NULL,
+    hour          INTEGER   NOT NULL,
+    subscribed_at TIMESTAMP NOT NULL,
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_question_subscriptions_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT uk_question_subscriptions_user UNIQUE (user_id)
+);
+
+CREATE TABLE question_subscription_categories
+(
+    id              BIGSERIAL PRIMARY KEY,
+    subscription_id BIGINT    NOT NULL,
+    category_id     BIGINT    NOT NULL,
+    created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_qsc_subscription FOREIGN KEY (subscription_id) REFERENCES question_subscriptions (id) ON DELETE CASCADE,
+    CONSTRAINT fk_qsc_category FOREIGN KEY (category_id) REFERENCES categories (id),
+    CONSTRAINT uk_qsc_subscription_category UNIQUE (subscription_id, category_id)
+);
+
+CREATE TABLE question_deliveries
+(
+    id            BIGSERIAL PRIMARY KEY,
+    user_id       BIGINT    NOT NULL,
+    category_id   BIGINT    NOT NULL,
+    day           BIGINT    NOT NULL,
+    question_id   BIGINT    NOT NULL,
+    delivered_at  TIMESTAMP NOT NULL,
+    success       BOOLEAN   NOT NULL DEFAULT TRUE,
+    error_message TEXT,
+    CONSTRAINT fk_question_deliveries_user FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_question_deliveries_category FOREIGN KEY (category_id) REFERENCES categories (id),
+    CONSTRAINT fk_question_deliveries_question FOREIGN KEY (question_id) REFERENCES questions (id),
+    CONSTRAINT uk_question_deliveries_user_category_day UNIQUE (user_id, category_id, day)
+);
+
+CREATE UNIQUE INDEX idx_questions_day_category ON questions (day, category_id);
+CREATE INDEX idx_question_subscriptions_hour ON question_subscriptions (hour);
+CREATE INDEX idx_qsc_subscription ON question_subscription_categories (subscription_id);
+CREATE INDEX idx_question_deliveries_user_category ON question_deliveries (user_id, category_id);
+CREATE INDEX idx_question_deliveries_day ON question_deliveries (day);
+CREATE INDEX idx_question_deliveries_delivered_at ON question_deliveries (delivered_at);
+CREATE INDEX idx_question_deliveries_success ON question_deliveries (success);
