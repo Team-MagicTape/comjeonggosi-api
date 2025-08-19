@@ -1,6 +1,7 @@
 package com.comjeonggosi.infra.security.jwt.filter
 
 import com.comjeonggosi.infra.security.jwt.provider.JwtProvider
+import com.comjeonggosi.logger
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Component
@@ -13,8 +14,11 @@ import reactor.core.publisher.Mono
 class JwtAuthenticationFilter(
     private val jwtProvider: JwtProvider
 ) : WebFilter {
+    private val log = logger()
+
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
         val accessToken = extractToken(exchange)
+        log.info("Extracted access token: $accessToken")
         return if (accessToken != null && jwtProvider.validateToken(accessToken)) {
             val userId = jwtProvider.getUserId(accessToken)
             val authentication = UsernamePasswordAuthenticationToken(userId, null, emptyList())
