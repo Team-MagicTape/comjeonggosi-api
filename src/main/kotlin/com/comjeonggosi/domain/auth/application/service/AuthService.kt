@@ -53,7 +53,7 @@ class AuthService(
             .sameSite(cookieProperties.sameSite)
             .maxAge(maxAge)
             .path("/")
-            .domain(if (cookieProperties.secure) null else "localhost")
+            .domain(cookieProperties.domain)
             .build()
     }
 }
