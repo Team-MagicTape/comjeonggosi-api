@@ -18,7 +18,7 @@ class JwtAuthenticationFilter(
 
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
         val accessToken = extractToken(exchange)
-        log.info("Extracted access token: $accessToken")
+
         return if (accessToken != null && jwtProvider.validateToken(accessToken)) {
             val userId = jwtProvider.getUserId(accessToken)
             val authentication = UsernamePasswordAuthenticationToken(userId, null, emptyList())

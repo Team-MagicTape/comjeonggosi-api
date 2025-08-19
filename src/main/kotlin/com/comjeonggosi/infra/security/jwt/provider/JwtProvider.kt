@@ -1,6 +1,7 @@
 package com.comjeonggosi.infra.security.jwt.provider
 
 import com.comjeonggosi.infra.security.jwt.config.JwtProperties
+import com.comjeonggosi.infra.security.jwt.data.JwtPayload
 import com.comjeonggosi.infra.security.jwt.enums.JwtType
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -17,17 +18,23 @@ class JwtProvider(
 ) {
     private val key: SecretKey = Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray())
 
-    fun generateToken(userId: Long, type: JwtType): String {
+    fun generateToken(userId: Long): JwtPayload {
+        return JwtPayload(
+            accessToken = generateToken(userId, JwtType.ACCESS),
+            refreshToken = generateToken(userId, JwtType.REFRESH)
+        )
+    }
+
+    private fun generateToken(userId: Long, type: JwtType): String {
         val now = Instant.now()
-        val expiration = when (type) {
-            JwtType.ACCESS_TOKEN -> now.plus(type.expiration, ChronoUnit.MILLIS)
-            JwtType.REFRESH_TOKEN -> now.plus(type.expiration, ChronoUnit.MILLIS)
-        }
 
         return Jwts.builder()
+            .header()
+            .type(type.name)
+            .and()
             .subject(userId.toString())
             .issuedAt(Date.from(now))
-            .expiration(Date.from(expiration))
+            .expiration(Date.from(now.plus(type.expiration, ChronoUnit.MILLIS)))
             .signWith(key)
             .compact()
     }
