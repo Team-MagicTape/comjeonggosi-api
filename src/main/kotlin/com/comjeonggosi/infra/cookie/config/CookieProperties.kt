@@ -6,5 +6,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class CookieProperties(
     val secure: Boolean,
     val sameSite: String,
-    val domain: String
+    val domain: String?
 )
