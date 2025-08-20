@@ -53,7 +53,7 @@ class AuthService(
             .sameSite(cookieProperties.sameSite)
             .maxAge(maxAge)
             .path("/")
-            .domain(cookieProperties.domain)
+//            .domain(cookieProperties.domain)
             .build()
     }
 }
