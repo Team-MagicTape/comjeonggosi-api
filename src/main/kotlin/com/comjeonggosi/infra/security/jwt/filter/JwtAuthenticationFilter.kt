@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono
 
 @Component
 class JwtAuthenticationFilter(
-    private val jwtProvider: JwtProvider
+    private val jwtProvider: JwtProvider,
 ) : WebFilter {
     private val log = logger()
 
