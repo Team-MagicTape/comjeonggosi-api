@@ -25,7 +25,7 @@ spring:
       port: ${REDIS_PORT}
 
     mongodb:
-      uri: mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DATABASE}
+      uri: mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DATABASE}?authSource=admin
       username: ${MONGO_USERNAME}
       password: ${MONGO_PASSWORD}
 
