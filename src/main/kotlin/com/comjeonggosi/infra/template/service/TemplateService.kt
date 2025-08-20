@@ -19,7 +19,7 @@ class TemplateService(
             template
         }
     }
-    
+
     fun renderTemplate(template: String, variables: Map<String, Any>): String {
         var result = template
         variables.forEach { (key, value) ->

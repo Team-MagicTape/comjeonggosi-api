@@ -12,7 +12,7 @@ class CacheService(
     suspend fun get(key: String): String? {
         return redisTemplate.opsForValue().get(key).awaitSingleOrNull()
     }
-    
+
     suspend fun set(key: String, value: String, ttl: Duration) {
         redisTemplate.opsForValue().set(key, value, ttl).awaitSingleOrNull()
     }

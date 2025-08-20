@@ -2,7 +2,6 @@ package com.comjeonggosi.infra.security.holder
 
 import com.comjeonggosi.domain.user.domain.entity.UserEntity
 import com.comjeonggosi.domain.user.domain.repository.UserRepository
-import com.comjeonggosi.infra.oauth2.data.CustomOAuth2User
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.security.core.context.ReactiveSecurityContextHolder

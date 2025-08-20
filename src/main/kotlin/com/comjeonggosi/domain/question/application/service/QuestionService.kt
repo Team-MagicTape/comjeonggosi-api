@@ -217,8 +217,9 @@ class QuestionService(
                     QuestionSubscriptionResponse.Category(
                         id = it.id!!,
                         name = it.name
-                    ) }
+                    )
                 }
+            }
             .toList()
 
         return QuestionSubscriptionResponse(

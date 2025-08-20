@@ -5,12 +5,12 @@ import com.comjeonggosi.common.exception.response.ErrorResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.bind.support.WebExchangeBindException
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.ServerWebInputException
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.server.UnsupportedMediaTypeStatusException
 
 @RestControllerAdvice

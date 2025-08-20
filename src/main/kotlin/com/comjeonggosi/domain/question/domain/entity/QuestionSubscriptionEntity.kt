@@ -12,4 +12,4 @@ data class QuestionSubscriptionEntity(
     val userId: Long,
     val hour: Int,
     val subscribedAt: Instant
-): BaseEntity()
+) : BaseEntity()
