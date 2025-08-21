@@ -55,7 +55,8 @@ class QuestionService(
             existing?.copy(hour = request.hour) ?: QuestionSubscriptionEntity(
                 userId = userId,
                 hour = request.hour,
-                subscribedAt = Instant.now()
+                subscribedAt = Instant.now(),
+                email = request.email
             )
         )
 
@@ -138,11 +139,12 @@ class QuestionService(
 
         val jobs = subscriptions.flatMap { subscription ->
             val user = userMap[subscription.userId] ?: return@flatMap emptyList()
+            val email = subscription.email ?: user.email
             val categories = categoryMap[subscription.id] ?: return@flatMap emptyList()
 
             categories.map { category ->
                 async {
-                    processDelivery(user, category.categoryId, template)
+                    processDelivery(user.id!!, email, category.categoryId, template)
                 }
             }
         }
@@ -150,13 +152,13 @@ class QuestionService(
         jobs.awaitAll()
     }
 
-    private suspend fun processDelivery(user: UserEntity, categoryId: Long, template: String) {
+    private suspend fun processDelivery(userId: Long, email: String, categoryId: Long, template: String) {
         runCatching {
             val nextDay =
-                (questionDeliveryRepository.findTopByUserIdAndCategoryIdOrderByDayDesc(user.id!!, categoryId)?.day
+                (questionDeliveryRepository.findTopByUserIdAndCategoryIdOrderByDayDesc(userId, categoryId)?.day
                     ?: 0L) + 1
 
-            if (questionDeliveryRepository.existsByUserIdAndCategoryIdAndDay(user.id, categoryId, nextDay)) return
+            if (questionDeliveryRepository.existsByUserIdAndCategoryIdAndDay(userId, categoryId, nextDay)) return
 
             val question = questionRepository.findByCategoryIdAndDay(categoryId, nextDay)
                 ?: return
@@ -174,19 +176,19 @@ class QuestionService(
                 )
 
                 emailService.sendEmail(
-                    to = user.email,
+                    to = email,
                     subject = "[컴정고시] ${question.title}",
                     body = body
                 )
             }.onFailure { e ->
                 success = false
                 error = e.message
-                log.error("이메일 발송 실패: 유저 = ${user.id} | 질문 = ${question.id}", e)
+                log.error("이메일 발송 실패: 유저 = ${userId} | 질문 = ${question.id}", e)
             }
 
             questionDeliveryRepository.save(
                 QuestionDeliveryEntity(
-                    userId = user.id,
+                    userId = userId,
                     categoryId = categoryId,
                     day = nextDay,
                     questionId = question.id!!,
@@ -196,7 +198,7 @@ class QuestionService(
                 )
             )
         }.onFailure { e ->
-            log.error("질문 발송 실패: 유저 = ${user.id} | 카테고리 = $categoryId", e)
+            log.error("질문 발송 실패: 유저 = ${userId} | 카테고리 = $categoryId", e)
         }
     }
 
@@ -224,7 +226,8 @@ class QuestionService(
 
         return QuestionSubscriptionResponse(
             hour = hour,
-            categories = categories
+            categories = categories,
+            email = email ?: securityHolder.getUser().email
         )
     }
 }

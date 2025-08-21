@@ -11,5 +11,6 @@ data class QuestionSubscriptionEntity(
     val id: Long? = null,
     val userId: Long,
     val hour: Int,
-    val subscribedAt: Instant
+    val subscribedAt: Instant,
+    val email: String? = null,
 ) : BaseEntity()

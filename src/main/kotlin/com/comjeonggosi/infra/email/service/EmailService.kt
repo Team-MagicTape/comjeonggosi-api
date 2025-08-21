@@ -1,35 +1,37 @@
 package com.comjeonggosi.infra.email.service
 
-import com.comjeonggosi.infra.aws.config.AwsProperties
 import com.comjeonggosi.logger
-import kotlinx.coroutines.future.await
+import jakarta.mail.internet.MimeMessage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.mail.MailProperties
+import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
-import software.amazon.awssdk.services.ses.SesAsyncClient
-import software.amazon.awssdk.services.ses.model.*
 
 @Service
 class EmailService(
-    private val sesAsyncClient: SesAsyncClient,
-    private val awsProperties: AwsProperties,
+    private val mailSender: JavaMailSender,
+    private val mailProperties: MailProperties
 ) {
     private val log = logger()
 
     suspend fun sendEmail(to: String, subject: String, body: String) {
-        val request = SendEmailRequest.builder()
-            .source(awsProperties.ses.source)
-            .destination(Destination.builder().toAddresses(to).build())
-            .message(
-                Message.builder()
-                    .subject(Content.builder().data(subject).build())
-                    .body(Body.builder().html(Content.builder().data(body).build()).build())
-                    .build()
-            )
-            .build()
-
-        runCatching {
-            sesAsyncClient.sendEmail(request).await()
-        }.onFailure { error ->
-            log.error("Email send failed for: $to", error)
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val message: MimeMessage = mailSender.createMimeMessage()
+                val helper = MimeMessageHelper(message, true, "UTF-8")
+                
+                helper.setFrom(mailProperties.username)
+                helper.setTo(to)
+                helper.setSubject(subject)
+                helper.setText(body, true)
+                
+                mailSender.send(message)
+            }.onFailure { error ->
+                log.error("Email send failed for: $to", error)
+            }
         }
     }
 }
