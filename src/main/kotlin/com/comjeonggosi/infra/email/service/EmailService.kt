@@ -2,7 +2,6 @@ package com.comjeonggosi.infra.email.service
 
 import com.comjeonggosi.infra.aws.config.AwsProperties
 import com.comjeonggosi.logger
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.future.await
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.ses.SesAsyncClient
@@ -14,7 +13,7 @@ class EmailService(
     private val awsProperties: AwsProperties,
 ) {
     private val log = logger()
-    
+
     suspend fun sendEmail(to: String, subject: String, body: String) {
         val request = SendEmailRequest.builder()
             .source(awsProperties.ses.source)

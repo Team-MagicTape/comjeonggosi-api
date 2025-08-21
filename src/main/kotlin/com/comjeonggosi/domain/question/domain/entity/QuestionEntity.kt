@@ -14,4 +14,4 @@ data class QuestionEntity(
     val title: String,
     val content: String,
     val answer: String
-): BaseEntity()
+) : BaseEntity()

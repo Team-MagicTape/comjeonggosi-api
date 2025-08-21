@@ -24,4 +24,7 @@ data class QuizDocument(
 
     @Field("deleted_at")
     val deletedAt: Instant? = null,
+
+    @Field("article_id")
+    val articleId: Long? = null
 )
