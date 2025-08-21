@@ -13,6 +13,12 @@ spring:
     graphiql:
       enabled: true
 
+  mail:
+    host: ${MAIL_HOST}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    port: ${MAIL_PORT}
+
   flyway:
     baseline-on-migrate: true
     url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}
@@ -94,10 +100,3 @@ cookie:
   secure: ${COOKIE_SECURE}
   same-site: ${COOKIE_SAME_SITE}
 #  domain: ${COOKIE_DOMAIN}
-
-aws:
-  region: ${AWS_REGION}
-  ses:
-    access-key: ${AWS_SES_ACCESS_KEY}
-    secret-key: ${AWS_SES_SECRET_KEY}
-    source: ${AWS_SES_SOURCE}
