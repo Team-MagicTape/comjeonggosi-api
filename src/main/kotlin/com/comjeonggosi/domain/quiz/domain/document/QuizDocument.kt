@@ -30,5 +30,5 @@ data class QuizDocument(
     val articleId: Long? = null,
 
     @Field("type")
-    val type: QuizType,
+    val type: QuizType = QuizType.MULTIPLE_CHOICE,
 )
