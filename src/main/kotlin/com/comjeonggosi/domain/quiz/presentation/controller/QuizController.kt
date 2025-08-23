@@ -21,7 +21,7 @@ class QuizController(
 
     @GetMapping("/submissions/my")
     suspend fun getMySubmissions(
-        @RequestParam(required = false, defaultValue = "0") page: Int,
+        @RequestParam(required = false, defaultValue = "0") @Min(0) page: Int,
         @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(100) size: Int,
         @RequestParam(required = false) isCorrected: Boolean?
     ) =
