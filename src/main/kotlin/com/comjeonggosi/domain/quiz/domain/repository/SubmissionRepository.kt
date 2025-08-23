@@ -7,13 +7,13 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 interface SubmissionRepository : CoroutineCrudRepository<SubmissionEntity, Long> {
     @Query("SELECT * FROM submissions WHERE user_id = :userId ORDER BY created_at DESC LIMIT :limit OFFSET :offset")
-    fun findAllByUserId(userId: Long, limit: Int, offset: Int): Flow<SubmissionEntity>
+    fun findAllByUserId(userId: Long, limit: Int, offset: Long): Flow<SubmissionEntity>
     
     @Query("SELECT * FROM submissions WHERE user_id = :userId AND is_corrected = :isCorrected ORDER BY created_at DESC LIMIT :limit OFFSET :offset")
     fun findAllByUserIdAndIsCorrected(
         userId: Long,
         isCorrected: Boolean,
         limit: Int,
-        offset: Int
+        offset: Long
     ): Flow<SubmissionEntity>
 }

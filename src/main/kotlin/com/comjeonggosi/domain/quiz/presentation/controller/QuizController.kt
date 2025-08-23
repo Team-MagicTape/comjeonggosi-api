@@ -2,6 +2,8 @@ package com.comjeonggosi.domain.quiz.presentation.controller
 
 import com.comjeonggosi.domain.quiz.application.service.QuizService
 import com.comjeonggosi.domain.quiz.presentation.dto.request.SolveQuizRequest
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -20,7 +22,7 @@ class QuizController(
     @GetMapping("/submissions/my")
     suspend fun getMySubmissions(
         @RequestParam(required = false, defaultValue = "0") page: Int,
-        @RequestParam(required = false, defaultValue = "10") size: Int,
+        @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(100) size: Int,
         @RequestParam(required = false) isCorrected: Boolean?
     ) =
         quizService.getMySubmissions(page, size, isCorrected)

@@ -56,7 +56,7 @@ class QuizService(
 
     suspend fun getMySubmissions(page: Int, size: Int, isCorrected: Boolean?): Flow<QuizSubmissionResponse> {
         val user = securityHolder.getUser()
-        val offset = page * size
+        val offset = page.toLong() * size
         val submissions = if (isCorrected == null) {
             submissionRepository.findAllByUserId(user.id!!, size, offset)
         } else {
