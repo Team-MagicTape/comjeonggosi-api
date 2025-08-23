@@ -12,11 +12,20 @@ import org.springframework.stereotype.Repository
 class QuizQueryRepository(
     private val mongoTemplate: ReactiveMongoTemplate
 ) {
-    suspend fun findRandomQuiz(categoryId: Long?): QuizDocument? {
+    suspend fun findRandomQuiz(
+        categoryId: Long?,
+        hiddenIds: List<String> = emptyList()
+    ): QuizDocument? {
         val criteria = Criteria.where("deleted_at").`is`(null)
+
         if (categoryId != null) {
             criteria.and("category_id").`is`(categoryId)
         }
+
+        if (hiddenIds.isNotEmpty()) {
+            criteria.and("_id").nin(hiddenIds)
+        }
+
         val match: MatchOperation = Aggregation.match(criteria)
         val sample = Aggregation.sample(1)
         val aggregation = Aggregation.newAggregation(match, sample)

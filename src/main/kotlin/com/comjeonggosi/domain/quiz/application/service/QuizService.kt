@@ -27,8 +27,17 @@ class QuizService(
     private val submissionRepository: SubmissionRepository,
     private val categoryRepository: CategoryRepository
 ) {
-    suspend fun getRandomQuiz(categoryId: Long?): QuizResponse {
-        val quiz = quizQueryRepository.findRandomQuiz(categoryId)
+    suspend fun getRandomQuiz(categoryId: Long?, hidden: String?): QuizResponse {
+        val hiddenIds = if (securityHolder.isAuthenticated()) {
+            val user = securityHolder.getUser()
+            when (hidden) {
+                "week" -> submissionRepository.findSolvedProblemIdsWithinDays(user.id!!, 7)
+                "forever" -> submissionRepository.findAllSolvedProblemIds(user.id!!)
+                else -> emptyList()
+            }
+        } else emptyList()
+
+        val quiz = quizQueryRepository.findRandomQuiz(categoryId, hiddenIds)
             ?: throw CustomException(QuizErrorCode.PREPARING_QUIZ)
         return quiz.toResponse()
     }
@@ -74,7 +83,7 @@ class QuizService(
     }
 
     private suspend fun QuizDocument.toResponse(): QuizResponse {
-        val category = categoryRepository.findById(this.categoryId.toLong())
+        val category = categoryRepository.findById(this.categoryId)
             ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
 
         return QuizResponse(
