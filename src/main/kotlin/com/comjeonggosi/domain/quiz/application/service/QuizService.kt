@@ -87,7 +87,8 @@ class QuizService(
                 name = category.name,
                 description = category.description,
             ),
-            articleId = this.articleId
+            articleId = this.articleId,
+            type = this.type,
         )
     }
 }

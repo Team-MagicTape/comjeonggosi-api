@@ -38,6 +38,7 @@ class AdminQuizService(
             options = request.options ?: emptyList(),
             categoryId = category.id!!,
             articleId = article?.id,
+            type = request.type,
         )
 
         quizRepository.save(quiz)
@@ -72,6 +73,7 @@ class AdminQuizService(
                 options = request.options ?: quiz.options,
                 categoryId = category?.id ?: quiz.categoryId,
                 articleId = article?.id ?: quiz.articleId,
+                type = request.type ?: quiz.type,
             )
         )
     }
@@ -100,7 +102,8 @@ class AdminQuizService(
                 name = category.name,
                 description = category.description,
             ),
-            articleId = this.articleId
+            articleId = this.articleId,
+            type = this.type
         )
     }
 }
