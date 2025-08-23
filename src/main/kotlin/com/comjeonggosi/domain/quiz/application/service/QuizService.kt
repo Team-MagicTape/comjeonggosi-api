@@ -54,16 +54,18 @@ class QuizService(
         )
     }
 
-    suspend fun getMySubmissions(isCorrected: Boolean?): Flow<QuizSubmissionResponse> {
+    suspend fun getMySubmissions(page: Int, size: Int, isCorrected: Boolean?): Flow<QuizSubmissionResponse> {
         val user = securityHolder.getUser()
-        val submissions = if (isCorrected != null) {
-            submissionRepository.findAllByUserIdAndIsCorrectedOrderByCreatedAtDesc(user.id!!, isCorrected)
+        val offset = page.toLong() * size
+        val submissions = if (isCorrected == null) {
+            submissionRepository.findAllByUserId(user.id!!, size, offset)
         } else {
-            submissionRepository.findAllByUserIdOrderByCreatedAtDesc(user.id!!)
+            submissionRepository.findAllByUserIdAndIsCorrected(user.id!!, isCorrected, size, offset)
         }
 
         return submissions.map {
             val quiz = quizRepository.findById(it.quizId) ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
+
             QuizSubmissionResponse(
                 quiz = quiz.toResponse(),
                 isCorrected = it.isCorrected,
@@ -74,7 +76,7 @@ class QuizService(
     }
 
     private suspend fun QuizDocument.toResponse(): QuizResponse {
-        val category = categoryRepository.findById(this.categoryId.toLong())
+        val category = categoryRepository.findById(this.categoryId)
             ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
 
         return QuizResponse(
