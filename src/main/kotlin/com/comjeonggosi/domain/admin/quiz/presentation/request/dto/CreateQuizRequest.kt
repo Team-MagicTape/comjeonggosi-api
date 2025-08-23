@@ -8,5 +8,5 @@ data class CreateQuizRequest(
     val options: List<String>?,
     val categoryId: Long,
     val articleId: Long?,
-    val type: QuizType
+    val type: QuizType,
 )
