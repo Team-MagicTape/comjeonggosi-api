@@ -10,5 +10,5 @@ data class QuizResponse(
     val options: List<String>,
     val category: CategoryResponse,
     val articleId: Long?,
-    val type: QuizType
+    val type: QuizType,
 )
