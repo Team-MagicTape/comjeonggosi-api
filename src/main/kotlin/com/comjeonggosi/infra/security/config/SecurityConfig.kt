@@ -63,10 +63,7 @@ class SecurityConfig(
                 .pathMatchers("/oauth2/**").permitAll()
                 .pathMatchers("/quizzes/**").permitAll()
                 .pathMatchers("/admin/**").permitAll()
-                .pathMatchers("/articles/**").permitAll()
-                .pathMatchers("/articles").permitAll()
-                .pathMatchers("/categories").permitAll()
-                .pathMatchers("/categories/**").permitAll()
+                .pathMatchers("/articles/**", "/categories/**").permitAll()
                 .anyExchange().authenticated()
         }
         .oauth2Login { oauth2 ->
