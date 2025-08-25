@@ -16,4 +16,25 @@ interface SubmissionRepository : CoroutineCrudRepository<SubmissionEntity, Long>
         limit: Int,
         offset: Long
     ): Flow<SubmissionEntity>
+
+    @Query(
+        """
+        SELECT DISTINCT quiz_id 
+        FROM submissions
+        WHERE user_id = :userId 
+          AND is_corrected = true 
+          AND created_at >= NOW() - INTERVAL :days DAY
+        """
+    )
+    suspend fun findSolvedProblemIdsWithinDays(userId: Long, days: Long): List<String>
+
+    @Query(
+        """
+        SELECT DISTINCT quiz_id 
+        FROM submissions
+        WHERE user_id = :userId 
+          AND is_corrected = true
+        """
+    )
+    suspend fun findAllSolvedProblemIds(userId: Long): List<String>
 }

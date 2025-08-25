@@ -1,5 +1,6 @@
 package com.comjeonggosi.domain.quiz.domain.document
 
+import com.comjeonggosi.domain.quiz.domain.enums.QuizType
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
@@ -26,5 +27,8 @@ data class QuizDocument(
     val deletedAt: Instant? = null,
 
     @Field("article_id")
-    val articleId: Long? = null
+    val articleId: Long? = null,
+
+    @Field("type")
+    val type: QuizType = QuizType.MULTIPLE_CHOICE,
 )
