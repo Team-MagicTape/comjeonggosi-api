@@ -100,4 +100,4 @@ frontend:
 cookie:
   secure: ${COOKIE_SECURE}
   same-site: ${COOKIE_SAME_SITE}
-#  domain: ${COOKIE_DOMAIN}
+  domain: ${COOKIE_DOMAIN}
