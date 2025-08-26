@@ -16,6 +16,7 @@ class UserService(
             email = user.email,
             nickname = user.nickname,
             profileImageUrl = user.profileImageUrl,
+            createdAt = user.createdAt,
         )
     }
 }
