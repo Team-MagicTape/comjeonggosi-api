@@ -62,7 +62,7 @@ class SecurityConfig(
                 .pathMatchers("/actuator/**").permitAll()
                 .pathMatchers("/oauth2/**").permitAll()
                 .pathMatchers("/quizzes/**").permitAll()
-                .pathMatchers("/admin/**").permitAll()
+                .pathMatchers("/admin/**").hasRole("ADMIN")
                 .pathMatchers("/articles/**", "/categories/**").permitAll()
                 .anyExchange().authenticated()
         }
