@@ -17,7 +17,7 @@ class JwtProvider(
 ) {
     private val key: SecretKey = Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray())
 
-    fun generateToken(userId: Long, type: JwtType): String {
+    fun generateToken(userId: Long, role: String, type: JwtType): String {
         val now = Instant.now()
         val expiration = when (type) {
             JwtType.ACCESS_TOKEN -> now.plus(type.expiration, ChronoUnit.MILLIS)
@@ -26,6 +26,7 @@ class JwtProvider(
 
         return Jwts.builder()
             .subject(userId.toString())
+            .claim("role", role)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(key)
@@ -44,13 +45,19 @@ class JwtProvider(
         }
     }
 
-    fun getUserId(token: String): Long {
-        val claims: Claims = Jwts.parser()
+    private fun getClaims(token: String): Claims {
+        return Jwts.parser()
             .verifyWith(key)
             .build()
             .parseSignedClaims(token)
             .payload
+    }
 
-        return claims.subject.toLong()
+    fun getUserId(token: String): Long {
+        return getClaims(token).subject.toLong()
+    }
+
+    fun getRole(token: String): String {
+        return getClaims(token).get("role", String::class.java)
     }
 }

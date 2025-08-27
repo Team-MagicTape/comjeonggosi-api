@@ -26,7 +26,10 @@ class AuthService(
         }
 
         val userId = jwtProvider.getUserId(refreshToken)
-        val newAccessToken = jwtProvider.generateToken(userId, JwtType.ACCESS_TOKEN)
+        val user = userRepository.findById(userId)
+            ?: throw IllegalArgumentException("User not found")
+
+        val newAccessToken = jwtProvider.generateToken(user.id!!, user.role, JwtType.ACCESS_TOKEN)
 
         val accessTokenCookie = createCookie("accessToken", newAccessToken, Duration.ofHours(1))
 

@@ -35,8 +35,9 @@ class OAuth2SuccessHandler(
             authService.updateLastLoginAt(userId)
         }
 
-        val accessToken = jwtProvider.generateToken(userId, JwtType.ACCESS_TOKEN)
-        val refreshToken = jwtProvider.generateToken(userId, JwtType.REFRESH_TOKEN)
+        val role = oauth2User.user.role
+        val accessToken = jwtProvider.generateToken(userId, role, JwtType.ACCESS_TOKEN)
+        val refreshToken = jwtProvider.generateToken(userId, role, JwtType.REFRESH_TOKEN)
 
         val response = webFilterExchange.exchange.response
 
