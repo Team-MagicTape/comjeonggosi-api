@@ -18,6 +18,6 @@ class CustomOAuth2User(
     }
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        return mutableListOf(SimpleGrantedAuthority("ROLE_" + user.role.name))
+        return mutableListOf(SimpleGrantedAuthority("ROLE_" + user.role))
     }
 }
