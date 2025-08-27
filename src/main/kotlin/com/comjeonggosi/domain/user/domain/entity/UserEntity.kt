@@ -15,5 +15,6 @@ data class UserEntity(
     val email: String,
     val nickname: String,
     val profileImageUrl: String? = null,
+    val role: String = "USER",
     val lastLoginAt: Instant? = null,
 ) : BaseEntity()

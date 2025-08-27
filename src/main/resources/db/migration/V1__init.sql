@@ -8,7 +8,8 @@ CREATE TABLE users
     profile_image_url TEXT,
     last_login_at     TIMESTAMP,
     created_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    role              VARCHAR(255) NOT NULL DEFAULT 'USER'
 );
 
 ALTER TABLE users

@@ -46,8 +46,9 @@ class OAuth2UserService(
         profileImageUrl: String?
     ): UserEntity {
         val existingUser = userRepository.findByProviderAndProviderId(provider, providerId)
-        if (existingUser != null)
+        if (existingUser != null) {
             return existingUser
+        }
 
         return userRepository.save(
             UserEntity(
@@ -56,6 +57,7 @@ class OAuth2UserService(
                 email = email,
                 nickname = nickname,
                 profileImageUrl = profileImageUrl,
+                role = "USER",
                 lastLoginAt = Instant.now()
             )
         )
