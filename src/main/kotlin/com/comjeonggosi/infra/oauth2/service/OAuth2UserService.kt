@@ -1,6 +1,7 @@
 package com.comjeonggosi.infra.oauth2.service
 
 import com.comjeonggosi.domain.user.domain.entity.UserEntity
+import com.comjeonggosi.domain.user.domain.entity.UserRole
 import com.comjeonggosi.domain.user.domain.repository.UserRepository
 import com.comjeonggosi.infra.oauth2.data.CustomOAuth2User
 import com.comjeonggosi.infra.oauth2.enums.OAuth2Provider
@@ -46,8 +47,9 @@ class OAuth2UserService(
         profileImageUrl: String?
     ): UserEntity {
         val existingUser = userRepository.findByProviderAndProviderId(provider, providerId)
-        if (existingUser != null)
+        if (existingUser != null) {
             return existingUser
+        }
 
         return userRepository.save(
             UserEntity(
@@ -56,6 +58,7 @@ class OAuth2UserService(
                 email = email,
                 nickname = nickname,
                 profileImageUrl = profileImageUrl,
+                role = UserRole.USER,
                 lastLoginAt = Instant.now()
             )
         )
