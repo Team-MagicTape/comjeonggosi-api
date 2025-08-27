@@ -1,6 +1,7 @@
 package com.comjeonggosi.domain.user.domain.entity
 
 import com.comjeonggosi.common.domain.entity.BaseEntity
+import com.comjeonggosi.domain.user.domain.enums.UserRole
 import com.comjeonggosi.infra.oauth2.enums.OAuth2Provider
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
