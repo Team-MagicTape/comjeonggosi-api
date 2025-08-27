@@ -1,5 +1,3 @@
-CREATE TYPE user_role AS ENUM ('USER', 'ADMIN');
-
 CREATE TABLE users
 (
     id                BIGSERIAL PRIMARY KEY,
@@ -11,7 +9,7 @@ CREATE TABLE users
     last_login_at     TIMESTAMP,
     created_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    role              user_role    NOT NULL DEFAULT 'USER'
+    role              VARCHAR(255) NOT NULL DEFAULT 'USER'
 );
 
 ALTER TABLE users

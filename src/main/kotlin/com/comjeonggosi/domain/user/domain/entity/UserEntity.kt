@@ -1,7 +1,6 @@
 package com.comjeonggosi.domain.user.domain.entity
 
 import com.comjeonggosi.common.domain.entity.BaseEntity
-import com.comjeonggosi.domain.user.domain.enums.UserRole
 import com.comjeonggosi.infra.oauth2.enums.OAuth2Provider
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
@@ -16,6 +15,6 @@ data class UserEntity(
     val email: String,
     val nickname: String,
     val profileImageUrl: String? = null,
-    val role: UserRole = UserRole.USER,
+    val role: String = "USER",
     val lastLoginAt: Instant? = null,
 ) : BaseEntity()
