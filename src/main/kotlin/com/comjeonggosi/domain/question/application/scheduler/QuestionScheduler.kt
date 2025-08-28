@@ -17,7 +17,7 @@ class QuestionScheduler(
     private val log = logger()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    @Scheduled(cron = "0 0 * * * ?")
+    @Scheduled(cron = "0 * * * * ?")
     fun send() {
         scope.launch {
             try {
