@@ -7,8 +7,11 @@ import com.comjeonggosi.domain.workbook.domain.entity.WorkbookEntity
 import com.comjeonggosi.domain.workbook.domain.entity.WorkbookQuizEntity
 import com.comjeonggosi.domain.workbook.domain.repository.WorkbookQuizRepository
 import com.comjeonggosi.domain.workbook.domain.repository.WorkbookRepository
+import com.comjeonggosi.domain.workbook.presentation.dto.request.AddQuizRequest
+import com.comjeonggosi.domain.workbook.presentation.dto.response.WorkbookResponse
 import com.comjeonggosi.infra.security.holder.SecurityHolder
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
@@ -25,15 +28,8 @@ class WorkbookService(
     private val transactionalOperator: TransactionalOperator,
 ) {
     data class CreateWorkbookRequest(val name: String, val description: String)
-    data class AddQuizRequest(val quizId: String)
-    data class WorkbookResponse(
-        val id: Long,
-        val name: String,
-        val description: String,
-        val quizIds: List<String>,
-    )
 
-    suspend fun create(request: CreateWorkbookRequest): WorkbookResponse {
+    suspend fun createWorkbook(request: CreateWorkbookRequest): WorkbookResponse {
         val userId = securityHolder.getUserId()
         val saved = workbookRepository.save(
             WorkbookEntity(
@@ -46,7 +42,7 @@ class WorkbookService(
         return toResponse(saved, emptyList())
     }
 
-    suspend fun delete(workbookId: Long) {
+    suspend fun deleteWorkbook(workbookId: Long) {
         val userId = securityHolder.getUserId()
         val workbook = workbookRepository.findByIdAndOwnerIdAndDeletedAtIsNull(workbookId, userId)
             ?: throw CustomException(WorkbookErrorCode.WORKBOOK_NOT_FOUND)
@@ -57,7 +53,7 @@ class WorkbookService(
         }
     }
 
-    suspend fun addQuiz(workbookId: Long, request: AddQuizRequest) {
+    suspend fun addQuizToWorkbook(workbookId: Long, request: AddQuizRequest) {
         val userId = securityHolder.getUserId()
         val workbook = workbookRepository.findByIdAndOwnerIdAndDeletedAtIsNull(workbookId, userId)
             ?: throw CustomException(WorkbookErrorCode.WORKBOOK_NOT_FOUND)
@@ -72,7 +68,7 @@ class WorkbookService(
         }
     }
 
-    suspend fun removeQuiz(workbookId: Long, quizId: String) {
+    suspend fun removeQuizFromWorkbook(workbookId: Long, quizId: String) {
         val userId = securityHolder.getUserId()
         val workbook = workbookRepository.findByIdAndOwnerIdAndDeletedAtIsNull(workbookId, userId)
             ?: throw CustomException(WorkbookErrorCode.WORKBOOK_NOT_FOUND)
@@ -99,7 +95,7 @@ class WorkbookService(
             quizIds = quizIds,
         )
 
-    private fun flowWithQuizIds(block: suspend (Long) -> Flow<WorkbookEntity>): Flow<WorkbookResponse> = kotlinx.coroutines.flow.flow {
+    private fun flowWithQuizIds(block: suspend (Long) -> Flow<WorkbookEntity>): Flow<WorkbookResponse> = flow {
         val userId = securityHolder.getUserId()
         block(userId).collect { wb ->
             val quizIds = workbookQuizRepository.findAllByWorkbookId(wb.id!!).map { it.quizId }.toList()
