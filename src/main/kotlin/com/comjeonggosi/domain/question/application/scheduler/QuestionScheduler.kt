@@ -17,13 +17,13 @@ class QuestionScheduler(
     private val log = logger()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 0 * * * ?")
     fun send() {
         scope.launch {
             try {
                 questionSendService.send()
             } catch (e: Exception) {
-                log.error("질문 전송 실패", e)
+                log.error("질문 전송 실패: ${e.message}", e)
             }
         }
     }
