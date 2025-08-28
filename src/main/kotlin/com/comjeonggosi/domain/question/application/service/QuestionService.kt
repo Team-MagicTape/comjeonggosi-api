@@ -35,18 +35,12 @@ import java.time.LocalDateTime
 class QuestionService(
     private val questionSubscriptionCategoryRepository: QuestionSubscriptionCategoryRepository,
     private val questionDeliveryRepository: QuestionDeliveryRepository,
-    private val emailService: EmailService,
-    private val frontendProperties: FrontendProperties,
     private val questionRepository: QuestionRepository,
     private val securityHolder: SecurityHolder,
     private val questionSubscriptionRepository: QuestionSubscriptionRepository,
-    private val templateService: TemplateService,
     private val transactionalOperator: TransactionalOperator,
-    private val userRepository: UserRepository,
     private val categoryRepository: CategoryRepository
 ) {
-    private val log = logger()
-
     suspend fun subscribe(request: SubscribeQuestionRequest) = transactionalOperator.executeAndAwait {
         val userId = securityHolder.getUserId()
         val existing = questionSubscriptionRepository.findByUserId(userId)
@@ -118,87 +112,6 @@ class QuestionService(
         }
 
         return question.toResponse()
-    }
-
-    suspend fun send() = coroutineScope {
-        val hour = LocalDateTime.now().hour
-        val subscriptions = questionSubscriptionRepository.findAllByHour(hour)
-
-        if (subscriptions.isEmpty()) return@coroutineScope
-
-        val userIds = subscriptions.map { it.userId }
-        val subscriptionIds = subscriptions.mapNotNull { it.id }
-
-        val userMap = userRepository.findAllById(userIds).toList().associateBy { it.id!! }
-        val categoryMap = questionSubscriptionCategoryRepository
-            .findAllBySubscriptionIdIn(subscriptionIds)
-            .toList()
-            .groupBy { it.subscriptionId }
-        val template = templateService.getTemplate("question")
-
-        val jobs = subscriptions.flatMap { subscription ->
-            val user = userMap[subscription.userId] ?: return@flatMap emptyList()
-            val email = subscription.email ?: user.email
-            val categories = categoryMap[subscription.id] ?: return@flatMap emptyList()
-
-            categories.map { category ->
-                async {
-                    processDelivery(user.id!!, email, category.categoryId, template)
-                }
-            }
-        }
-
-        jobs.awaitAll()
-    }
-
-    private suspend fun processDelivery(userId: Long, email: String, categoryId: Long, template: String) {
-        runCatching {
-            val nextDay =
-                (questionDeliveryRepository.findTopByUserIdAndCategoryIdOrderByDayDesc(userId, categoryId)?.day
-                    ?: 0L) + 1
-
-            if (questionDeliveryRepository.existsByUserIdAndCategoryIdAndDay(userId, categoryId, nextDay)) return
-
-            val question = questionRepository.findByCategoryIdAndDay(categoryId, nextDay)
-                ?: return
-
-            var success = true
-            var error: String? = null
-
-            runCatching {
-                val body = templateService.renderTemplate(
-                    template, mapOf(
-                        "title" to question.title,
-                        "content" to question.content,
-                        "questionUrl" to "${frontendProperties.baseUrl}/questions/${question.id!!}"
-                    )
-                )
-
-                emailService.sendEmail(
-                    to = email,
-                    subject = "[컴정고시] ${question.title}",
-                    body = body
-                )
-            }.onFailure { e ->
-                success = false
-                error = e.message
-                log.error("이메일 발송 실패: 유저 = ${userId} | 질문 = ${question.id}", e)
-            }
-
-            questionDeliveryRepository.save(
-                QuestionDeliveryEntity(
-                    userId = userId,
-                    categoryId = categoryId,
-                    day = nextDay,
-                    questionId = question.id!!,
-                    deliveredAt = Instant.now(),
-                    success = success,
-                    errorMessage = error
-                )
-            )
-        }.onFailure { e ->
-            log.error("질문 발송 실패: 유저 = ${userId} | 카테고리 = $categoryId", e)
-        }
     }
 
     private fun QuestionEntity.toResponse() = QuestionResponse(
