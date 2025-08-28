@@ -15,7 +15,6 @@ import com.comjeonggosi.domain.question.domain.repository.QuestionSubscriptionRe
 import com.comjeonggosi.domain.question.presentation.dto.request.SubscribeQuestionRequest
 import com.comjeonggosi.domain.question.presentation.dto.response.QuestionResponse
 import com.comjeonggosi.domain.question.presentation.dto.response.QuestionSubscriptionResponse
-import com.comjeonggosi.domain.user.domain.entity.UserEntity
 import com.comjeonggosi.domain.user.domain.repository.UserRepository
 import com.comjeonggosi.infra.email.service.EmailService
 import com.comjeonggosi.infra.frontend.config.FrontendProperties
