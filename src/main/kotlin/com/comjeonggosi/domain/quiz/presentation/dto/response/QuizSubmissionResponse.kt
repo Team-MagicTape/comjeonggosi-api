@@ -1,10 +1,11 @@
 package com.comjeonggosi.domain.quiz.presentation.dto.response
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.Instant
 
 data class QuizSubmissionResponse(
     val quiz: QuizResponse,
     val isCorrected: Boolean,
     val userAnswer: String,
-    val submittedAt: Instant
+    @JsonIgnore val submittedAt: Instant = Instant.now()
 )
