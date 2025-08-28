@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
-@EnableScheduling
 class ComjeonggosiApplication
 
 fun main(args: Array<String>) {
