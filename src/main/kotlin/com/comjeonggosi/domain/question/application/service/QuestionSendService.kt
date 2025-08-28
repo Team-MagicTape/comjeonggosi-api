@@ -35,6 +35,8 @@ class QuestionSendService(
         val hour = LocalDateTime.now().hour
         val subscriptions = questionSubscriptionRepository.findAllByHour(hour)
 
+        log.info("Try to send mails. hour: ${hour}, count: ${subscriptions.count()}")
+
         if (subscriptions.isEmpty()) return@coroutineScope
 
         val userIds = subscriptions.map { it.userId }
