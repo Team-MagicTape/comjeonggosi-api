@@ -75,6 +75,7 @@ CREATE TABLE question_subscriptions
     user_id       BIGINT    NOT NULL,
     hour          INTEGER   NOT NULL,
     subscribed_at TIMESTAMP NOT NULL,
+    email         VARCHAR(255),
     created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_question_subscriptions_user FOREIGN KEY (user_id) REFERENCES users (id),

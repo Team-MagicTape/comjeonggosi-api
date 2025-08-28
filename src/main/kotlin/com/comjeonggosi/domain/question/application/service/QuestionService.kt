@@ -15,7 +15,6 @@ import com.comjeonggosi.domain.question.domain.repository.QuestionSubscriptionRe
 import com.comjeonggosi.domain.question.presentation.dto.request.SubscribeQuestionRequest
 import com.comjeonggosi.domain.question.presentation.dto.response.QuestionResponse
 import com.comjeonggosi.domain.question.presentation.dto.response.QuestionSubscriptionResponse
-import com.comjeonggosi.domain.user.domain.entity.UserEntity
 import com.comjeonggosi.domain.user.domain.repository.UserRepository
 import com.comjeonggosi.infra.email.service.EmailService
 import com.comjeonggosi.infra.frontend.config.FrontendProperties
@@ -52,7 +51,7 @@ class QuestionService(
         val userId = securityHolder.getUserId()
         val existing = questionSubscriptionRepository.findByUserId(userId)
         val subscription = questionSubscriptionRepository.save(
-            existing?.copy(hour = request.hour) ?: QuestionSubscriptionEntity(
+            existing?.copy(hour = request.hour, email = request.email) ?: QuestionSubscriptionEntity(
                 userId = userId,
                 hour = request.hour,
                 subscribedAt = Instant.now(),
@@ -171,7 +170,7 @@ class QuestionService(
                     template, mapOf(
                         "title" to question.title,
                         "content" to question.content,
-                        "questionUrl" to "${frontendProperties.baseUrl}/questions/${question.id}"
+                        "questionUrl" to "${frontendProperties.baseUrl}/questions/${question.id!!}"
                     )
                 )
 
