@@ -3,3 +3,12 @@ management:
     web:
       exposure:
         include: health, info, prometheus, metrics
+    jmx:
+      exposure:
+        exclude: "*"
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

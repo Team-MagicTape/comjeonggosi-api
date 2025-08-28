@@ -1,5 +1,6 @@
 package com.comjeonggosi.domain.question.application.scheduler
 
+import com.comjeonggosi.domain.question.application.service.QuestionSendService
 import com.comjeonggosi.domain.question.application.service.QuestionService
 import com.comjeonggosi.logger
 import kotlinx.coroutines.CoroutineScope
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class QuestionScheduler(
-    private val questionService: QuestionService
+    private val questionSendService: QuestionSendService
 ) {
     private val log = logger()
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -20,9 +21,9 @@ class QuestionScheduler(
     fun send() {
         scope.launch {
             try {
-                questionService.send()
+                questionSendService.send()
             } catch (e: Exception) {
-                log.error("질문 전송 실패", e)
+                log.error("질문 전송 실패: ${e.message}", e)
             }
         }
     }

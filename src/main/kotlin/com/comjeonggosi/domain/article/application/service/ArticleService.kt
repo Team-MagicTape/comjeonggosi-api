@@ -27,18 +27,49 @@ class ArticleService(
     }
 
     suspend fun getArticle(articleId: Long): ArticleResponse {
-        return articleRepository.findById(articleId)?.toResponse()
+        return articleRepository.findById(articleId)?.toDetailResponse()
             ?: throw CustomException(ArticleErrorCode.ARTICLE_NOT_FOUND)
     }
 
     private suspend fun ArticleEntity.toResponse(): ArticleResponse {
-        val category = categoryRepository.findById(this.categoryId)
+        val category = categoryRepository.findById(categoryId)
+            ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
+
+        val content = content
+            .replace(Regex("#{1,6}\\s*"), "")
+            .replace(Regex("\\*{1,3}|_{1,3}"), "")
+            .replace(Regex("\\[([^]]+)]\\([^)]+\\)"), "$1")
+            .replace(Regex("```[\\s\\S]*?```"), "")
+            .replace(Regex("`([^`]+)`"), "$1")
+            .replace(Regex("^[-*+]\\s+", RegexOption.MULTILINE), "")
+            .replace(Regex("^\\d+\\.\\s+", RegexOption.MULTILINE), "")
+            .replace(Regex("^>\\s+", RegexOption.MULTILINE), "")
+            .replace(Regex("\\n{2,}"), " ")
+            .trim()
+            .let {
+                if (it.length > 20) { it.take(20) + "..." } else { it }
+            }
+
+        return ArticleResponse(
+            id = id!!,
+            title = title,
+            content = content,
+            category = CategoryResponse(
+                id = category.id!!,
+                name = category.name,
+                description = category.description
+            )
+        )
+    }
+
+    private suspend fun ArticleEntity.toDetailResponse(): ArticleResponse {
+        val category = categoryRepository.findById(categoryId)
             ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
 
         return ArticleResponse(
-            id = this.id!!,
-            title = this.title,
-            content = this.content,
+            id = id!!,
+            title = title,
+            content = content,
             category = CategoryResponse(
                 id = category.id!!,
                 name = category.name,
