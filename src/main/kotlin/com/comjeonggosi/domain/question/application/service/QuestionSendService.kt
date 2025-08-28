@@ -35,9 +35,11 @@ class QuestionSendService(
         val hour = LocalDateTime.now().hour
         val subscriptions = questionSubscriptionRepository.findAllByHour(hour)
 
-        log.info("Try to send mails. hour: ${hour}, count: ${subscriptions.count()}")
+        log.info("질문 발송 시작 (발송 대상: ${subscriptions.count()})")
 
         if (subscriptions.isEmpty()) return@coroutineScope
+
+        log.info("질문 발송 대상: ${subscriptions.joinToString { "userId=${it.userId}, email=${it.email}, id=${it.id}" }}")
 
         val userIds = subscriptions.map { it.userId }
         val subscriptionIds = subscriptions.mapNotNull { it.id }
@@ -50,12 +52,17 @@ class QuestionSendService(
         val template = templateService.getTemplate("question")
 
         val jobs = subscriptions.flatMap { subscription ->
+            log.info("처리 시작: userId=${subscription.userId}, email=${subscription.email}, id=${subscription.id}")
             val user = userMap[subscription.userId] ?: return@flatMap emptyList()
             val email = subscription.email ?: user.email
             val categories = categoryMap[subscription.id] ?: return@flatMap emptyList()
 
+            log.info("처리 대상 카테고리: ${categories.joinToString { "categoryId=${it.categoryId}" }}")
+
             categories.map { category ->
                 async {
+                    log.info("질문 발송 처리 시작: userId=${user.id}, email=$email, categoryId=${category.categoryId}")
+
                     processDelivery(user.id!!, email, category.categoryId, template)
                 }
             }
@@ -70,13 +77,19 @@ class QuestionSendService(
                 (questionDeliveryRepository.findTopByUserIdAndCategoryIdOrderByDayDesc(userId, categoryId)?.day
                     ?: 0L) + 1
 
+            log.info("다음 발송 질문 조회: userId=$userId, email=$email, categoryId=$categoryId, nextDay=$nextDay")
+
             if (questionDeliveryRepository.existsByUserIdAndCategoryIdAndDay(userId, categoryId, nextDay)) return
+
+            log.info("다음 발송 질문 미발송 확인: userId=$userId, email=$email, categoryId=$categoryId, nextDay=$nextDay")
 
             val question = questionRepository.findByCategoryIdAndDay(categoryId, nextDay)
                 ?: return
 
             var success = true
             var error: String? = null
+
+            log.info("발송 질문 조회 완료: userId=$userId, email=$email, categoryId=$categoryId, nextDay=$nextDay, questionId=${question.id}")
 
             runCatching {
                 val body = templateService.renderTemplate(
@@ -86,6 +99,8 @@ class QuestionSendService(
                         "questionUrl" to "${frontendProperties.baseUrl}/questions/${question.id!!}"
                     )
                 )
+
+                log.info("이메일 템플릿 렌더링 완료: userId=$userId, email=$email, questionId=${question.id}")
 
                 emailService.sendEmail(
                     to = email,
