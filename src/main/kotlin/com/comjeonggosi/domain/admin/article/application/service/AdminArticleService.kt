@@ -20,7 +20,8 @@ import java.time.Instant
 class AdminArticleService(
     private val articleRepository: ArticleRepository,
     private val securityHolder: SecurityHolder,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val relevantArticleResponseHelper: RelevantArticleResponseHelper
 ) {
     suspend fun createArticle(request: CreateArticleRequest) {
         val me = securityHolder.getUser()
@@ -76,15 +77,19 @@ class AdminArticleService(
         val category = categoryRepository.findById(this.categoryId)
             ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
 
+        val (beforeArticles, afterArticles) = relevantArticleResponseHelper.mapRelevantArticles(this.id!!)
+
         return ArticleResponse(
-            id = this.id!!,
+            id = this.id,
             title = this.title,
             content = this.content,
             category = CategoryResponse(
                 id = category.id!!,
                 name = category.name,
                 description = category.description
-            )
+            ),
+            beforeArticles = beforeArticles,
+            afterArticles = afterArticles
         )
     }
 }

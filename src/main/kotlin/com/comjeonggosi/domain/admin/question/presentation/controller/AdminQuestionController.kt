@@ -4,21 +4,17 @@ import com.comjeonggosi.domain.admin.question.application.service.AdminQuestionS
 import com.comjeonggosi.domain.admin.question.presentation.dto.request.CreateQuestionRequest
 import com.comjeonggosi.domain.admin.question.presentation.dto.request.UpdateQuestionRequest
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/admin/questions")
 class AdminQuestionController(private val adminQuestionService: AdminQuestionService) {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    suspend fun createQuestion(@RequestBody request: CreateQuestionRequest) = adminQuestionService.createQuestion(request)
+    suspend fun createQuestion(@RequestBody request: CreateQuestionRequest) =
+        adminQuestionService.createQuestion(request)
 
     @PatchMapping("/{questionId}")
-    suspend fun updateQuestion(@PathVariable questionId: Long, @RequestBody request: UpdateQuestionRequest) = adminQuestionService.updateQuestion(questionId, request)
+    suspend fun updateQuestion(@PathVariable questionId: Long, @RequestBody request: UpdateQuestionRequest) =
+        adminQuestionService.updateQuestion(questionId, request)
 }
