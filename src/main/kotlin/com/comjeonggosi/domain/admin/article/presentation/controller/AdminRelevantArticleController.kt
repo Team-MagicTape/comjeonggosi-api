@@ -15,8 +15,8 @@ class AdminRelevantArticleController(
     suspend fun linkArticle(@PathVariable articleId: Long, @RequestBody request: LinkArticleRequest) =
         adminRelevantArticleService.linkArticle(request, articleId)
 
-    @DeleteMapping
+    @DeleteMapping("/{toId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    suspend fun unlinkArticle(@PathVariable articleId: Long, @RequestParam to: Long) =
-        adminRelevantArticleService.unlinkArticle(to, articleId)
+    suspend fun unlinkArticle(@PathVariable articleId: Long, @PathVariable toId: Long) =
+        adminRelevantArticleService.unlinkArticle(toId, articleId)
 }
