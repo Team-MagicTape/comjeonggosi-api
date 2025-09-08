@@ -2,7 +2,6 @@ package com.comjeonggosi.domain.admin.article.application.service
 
 import com.comjeonggosi.common.exception.CustomException
 import com.comjeonggosi.domain.admin.article.presentation.dto.request.LinkArticleRequest
-import com.comjeonggosi.domain.admin.article.presentation.dto.request.UnlinkArticleRequest
 import com.comjeonggosi.domain.article.domain.entity.RelevantArticleEntity
 import com.comjeonggosi.domain.article.domain.error.ArticleErrorCode
 import com.comjeonggosi.domain.article.domain.error.RelevantArticleErrorCode
@@ -15,14 +14,14 @@ class AdminRelevantArticleService(
     private val articleRepository: ArticleRepository,
     private val relevantArticleRepository: RelevantArticleRepository,
 ) {
-    suspend fun linkArticle(request: LinkArticleRequest) {
-        if (isDuplicatedLink(request.fromArticleId, request.toArticleId))
+    suspend fun linkArticle(request: LinkArticleRequest, from: Long) {
+        if (isDuplicatedLink(from, request.to))
             throw CustomException(RelevantArticleErrorCode.LINK_ALREADY_EXISTS)
 
-        val fromArticle = articleRepository.findById(request.fromArticleId)
+        val fromArticle = articleRepository.findById(from)
             ?: throw CustomException(ArticleErrorCode.ARTICLE_NOT_FOUND)
 
-        val toArticle = articleRepository.findById(request.toArticleId)
+        val toArticle = articleRepository.findById(request.to)
             ?: throw CustomException(ArticleErrorCode.ARTICLE_NOT_FOUND)
 
         relevantArticleRepository.save(
@@ -34,9 +33,9 @@ class AdminRelevantArticleService(
         )
     }
 
-    suspend fun unlinkArticle(request: UnlinkArticleRequest) {
+    suspend fun unlinkArticle(to: Long, from: Long) {
         val exist = relevantArticleRepository
-            .findByFromArticleIdAndToArticleId(request.fromArticleId, request.toArticleId)
+            .findByFromArticleIdAndToArticleId(from, to)
             ?: throw CustomException(RelevantArticleErrorCode.LINK_NOT_FOUND)
 
         relevantArticleRepository.delete(exist)
