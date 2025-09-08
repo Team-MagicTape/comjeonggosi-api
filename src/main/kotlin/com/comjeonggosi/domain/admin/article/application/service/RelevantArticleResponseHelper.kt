@@ -20,7 +20,7 @@ class RelevantArticleResponseHelper(
         val relevantArticles = findRelevantArticles(fromArticleId)
 
         val toArticleIds = relevantArticles.mapNotNull { it.toArticleId }
-        val articlesMap = articleRepository.findAllByIdIn(toArticleIds)
+        val articlesMap = articleRepository.findAllByIdInAndDeletedAtIsNull(toArticleIds)
             .associateBy { it.id }
 
         fun mapToResponse(isBefore: Boolean) =
