@@ -1,4 +1,4 @@
-package com.comjeonggosi.domain.admin.article.application.service
+package com.comjeonggosi.domain.article.application.helper
 
 import com.comjeonggosi.domain.article.domain.entity.RelevantArticleEntity
 import com.comjeonggosi.domain.article.domain.repository.ArticleRepository

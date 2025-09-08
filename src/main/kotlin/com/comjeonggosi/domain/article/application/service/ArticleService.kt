@@ -1,7 +1,7 @@
 package com.comjeonggosi.domain.article.application.service
 
 import com.comjeonggosi.common.exception.CustomException
-import com.comjeonggosi.domain.admin.article.application.service.RelevantArticleResponseHelper
+import com.comjeonggosi.domain.article.application.helper.RelevantArticleResponseHelper
 import com.comjeonggosi.domain.article.domain.entity.ArticleEntity
 import com.comjeonggosi.domain.article.domain.error.ArticleErrorCode
 import com.comjeonggosi.domain.article.domain.repository.ArticleRepository
