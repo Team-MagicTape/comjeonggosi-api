@@ -4,12 +4,12 @@ import com.comjeonggosi.common.exception.CustomException
 import com.comjeonggosi.domain.category.domain.error.CategoryErrorCode
 import com.comjeonggosi.domain.category.domain.repository.CategoryRepository
 import com.comjeonggosi.domain.category.presentation.dto.response.CategoryResponse
+import com.comjeonggosi.domain.quiz.application.service.RecommendationService.RecommendationType
 import com.comjeonggosi.domain.quiz.domain.document.QuizDocument
 import com.comjeonggosi.domain.quiz.domain.entity.SubmissionEntity
+import com.comjeonggosi.domain.quiz.domain.entity.UserLearningProfileEntity
 import com.comjeonggosi.domain.quiz.domain.error.QuizErrorCode
-import com.comjeonggosi.domain.quiz.domain.repository.QuizQueryRepository
-import com.comjeonggosi.domain.quiz.domain.repository.QuizRepository
-import com.comjeonggosi.domain.quiz.domain.repository.SubmissionRepository
+import com.comjeonggosi.domain.quiz.domain.repository.*
 import com.comjeonggosi.domain.quiz.presentation.dto.request.SolveQuizRequest
 import com.comjeonggosi.domain.quiz.presentation.dto.response.QuizResponse
 import com.comjeonggosi.domain.quiz.presentation.dto.response.QuizSubmissionResponse
@@ -18,43 +18,54 @@ import com.comjeonggosi.infra.security.holder.SecurityHolder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.springframework.stereotype.Service
+import java.time.Instant
 
 @Service
 class QuizService(
     private val quizRepository: QuizRepository,
     private val quizQueryRepository: QuizQueryRepository,
-    private val securityHolder: SecurityHolder,
     private val submissionRepository: SubmissionRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val userLearningProfileRepository: UserLearningProfileRepository,
+    private val recommendationService: RecommendationService,
+    private val reviewScheduleService: ReviewScheduleService,
+    private val sessionService: SessionService,
+    private val securityHolder: SecurityHolder
 ) {
-    suspend fun getRandomQuiz(categoryId: Long?, hidden: String?): QuizResponse {
-        val hiddenIds = if (securityHolder.isAuthenticated()) {
-            val user = securityHolder.getUser()
-            when (hidden) {
-                "week" -> submissionRepository.findSolvedProblemIdsWithinDays(user.id!!, 7)
-                "forever" -> submissionRepository.findAllSolvedProblemIds(user.id!!)
-                else -> emptyList()
-            }
-        } else emptyList()
 
-        val quiz = quizQueryRepository.findRandomQuiz(categoryId, hiddenIds)
-            ?: throw CustomException(QuizErrorCode.PREPARING_QUIZ)
+    suspend fun getQuiz(
+        categoryId: Long? = null,
+        mode: String = "random",
+        difficulty: Int? = null,
+        tags: List<String>? = null
+    ): QuizResponse {
+        val userId = getCurrentUserId()
+        val sessionKey = sessionService.createSessionKey(userId)
+        val recentIds = sessionService.getRecentIds(sessionKey)
+
+        val hiddenIds = buildHiddenIds(userId, recentIds)
+
+        val quiz = selectQuizByMode(
+            mode = mode,
+            userId = userId,
+            categoryId = categoryId,
+            difficulty = difficulty,
+            tags = tags,
+            hiddenIds = hiddenIds
+        ) ?: throw CustomException(QuizErrorCode.PREPARING_QUIZ)
+
+        sessionService.addToSession(sessionKey, quiz.id!!)
         return quiz.toResponse()
     }
 
     suspend fun solve(quizId: String, request: SolveQuizRequest): SolveQuizResponse {
-        val quiz = quizRepository.findById(quizId) ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
+        val quiz = quizRepository.findById(quizId) 
+            ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
+
         val isCorrect = quiz.answer == request.answer
 
-        if (securityHolder.isAuthenticated()) {
-            val user = securityHolder.getUser()
-            val submission = SubmissionEntity(
-                userId = user.id!!,
-                quizId = quiz.id!!,
-                answer = request.answer,
-                isCorrected = isCorrect,
-            )
-            submissionRepository.save(submission)
+        getCurrentUserId()?.let { userId ->
+            processSubmission(userId, quizId, request.answer, isCorrect, quiz.categoryId)
         }
 
         return SolveQuizResponse(
@@ -63,43 +74,217 @@ class QuizService(
         )
     }
 
-    suspend fun getMySubmissions(page: Int, size: Int, isCorrected: Boolean?): Flow<QuizSubmissionResponse> {
-        val user = securityHolder.getUser()
-        val offset = page.toLong() * size
-        val submissions = if (isCorrected == null) {
-            submissionRepository.findAllByUserId(user.id!!, size, offset)
+    suspend fun getMySubmissions(
+        page: Int,
+        size: Int,
+        isCorrected: Boolean?
+    ): Flow<QuizSubmissionResponse> {
+        val userId = getCurrentUserId() 
+            ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
+
+        return submissionRepository
+            .findByUserId(userId, size, page.toLong() * size, isCorrected)
+            .map { submission ->
+                val quiz = quizRepository.findById(submission.quizId)
+                    ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
+
+                QuizSubmissionResponse(
+                    quiz = quiz.toResponse(),
+                    isCorrected = submission.isCorrected,
+                    userAnswer = submission.answer,
+                    submittedAt = submission.createdAt
+                )
+            }
+    }
+
+    private suspend fun buildHiddenIds(
+        userId: Long?,
+        recentIds: Set<String>
+    ): List<String> {
+        return if (userId != null) {
+            submissionRepository.findRecentSolvedIds(userId, 100) + recentIds
         } else {
-            submissionRepository.findAllByUserIdAndIsCorrected(user.id!!, isCorrected, size, offset)
+            recentIds.toList()
         }
+    }
 
-        return submissions.map {
-            val quiz = quizRepository.findById(it.quizId) ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
+    private suspend fun selectQuizByMode(
+        mode: String,
+        userId: Long?,
+        categoryId: Long?,
+        difficulty: Int?,
+        tags: List<String>?,
+        hiddenIds: List<String>
+    ): QuizDocument? {
+        return when (mode) {
+            "recommend" -> getRecommendedQuiz(userId, categoryId, difficulty, hiddenIds)
+            "review" -> getReviewQuiz(userId, hiddenIds)
+            "weakness" -> getWeaknessQuiz(userId, categoryId, hiddenIds)
+            else -> getRandomQuiz(categoryId, difficulty, tags, hiddenIds)
+        }
+    }
 
-            QuizSubmissionResponse(
-                quiz = quiz.toResponse(),
-                isCorrected = it.isCorrected,
-                userAnswer = it.answer,
-                submittedAt = it.createdAt
+    private suspend fun processSubmission(
+        userId: Long,
+        quizId: String,
+        answer: String,
+        isCorrect: Boolean,
+        categoryId: Long
+    ) {
+        saveSubmission(userId, quizId, answer, isCorrect)
+        updateProfile(userId, categoryId, isCorrect)
+        reviewScheduleService.updateSchedule(userId, quizId, isCorrect)
+    }
+
+    private suspend fun getRecommendedQuiz(
+        userId: Long?,
+        categoryId: Long?,
+        difficulty: Int?,
+        hiddenIds: List<String>
+    ): QuizDocument? {
+        if (userId == null) return getRandomQuiz(categoryId, difficulty, null, hiddenIds)
+
+        val candidates = quizQueryRepository.findQuizzesByCriteria(
+            categoryIds = categoryId?.let { listOf(it) },
+            difficulties = difficulty?.let { listOf(it) },
+            hiddenIds = hiddenIds,
+            limit = 200
+        )
+
+        return recommendationService.recommend(
+            userId = userId,
+            availableQuizzes = candidates,
+            type = RecommendationType.BALANCED,
+            limit = 1
+        ).firstOrNull()
+    }
+
+    private suspend fun getReviewQuiz(
+        userId: Long?,
+        hiddenIds: List<String>
+    ): QuizDocument? {
+        if (userId == null) return null
+
+        val dueQuizIds = reviewScheduleService.getDueReviews(userId)
+            .filterNot { it in hiddenIds }
+
+        return dueQuizIds.firstOrNull()?.let {
+            quizRepository.findById(it)
+        }
+    }
+
+    private suspend fun getWeaknessQuiz(
+        userId: Long?,
+        categoryId: Long?,
+        hiddenIds: List<String>
+    ): QuizDocument? {
+        if (userId == null) return null
+
+        val profile = userLearningProfileRepository.findByUserId(userId) 
+            ?: return null
+
+        val weakCategories = profile.categoryScores
+            .filter { categoryId == null || it.key == categoryId }
+            .entries
+            .sortedBy { it.value }
+            .take(3)
+            .map { it.key }
+
+        return quizQueryRepository.findQuizzesByCriteria(
+            categoryIds = weakCategories,
+            hiddenIds = hiddenIds,
+            limit = 50
+        ).randomOrNull()
+    }
+
+    private suspend fun getRandomQuiz(
+        categoryId: Long?,
+        difficulty: Int?,
+        tags: List<String>?,
+        hiddenIds: List<String>
+    ): QuizDocument? {
+        val candidates = quizQueryRepository.findQuizzesByCriteria(
+            categoryIds = categoryId?.let { listOf(it) },
+            difficulties = difficulty?.let { listOf(it) },
+            tags = tags,
+            hiddenIds = hiddenIds,
+            limit = 50
+        )
+
+        return candidates.randomOrNull()
+    }
+
+    private suspend fun saveSubmission(
+        userId: Long,
+        quizId: String,
+        answer: String,
+        isCorrect: Boolean
+    ) {
+        submissionRepository.save(
+            SubmissionEntity(
+                userId = userId,
+                quizId = quizId,
+                answer = answer,
+                isCorrected = isCorrect
             )
+        )
+    }
+
+    private suspend fun updateProfile(
+        userId: Long,
+        categoryId: Long,
+        isCorrect: Boolean
+    ) {
+        val profile = userLearningProfileRepository.findByUserId(userId)
+            ?: UserLearningProfileEntity(userId = userId)
+
+        val currentScore = profile.categoryScores[categoryId] ?: 0.5
+        val newScore = calculateNewScore(currentScore, isCorrect)
+
+        profile.categoryScores[categoryId] = newScore
+
+        userLearningProfileRepository.save(
+            profile.copy(
+                totalSolved = profile.totalSolved + 1,
+                totalCorrect = profile.totalCorrect + if (isCorrect) 1 else 0,
+                lastStudyDate = Instant.now()
+            )
+        )
+    }
+
+    private fun calculateNewScore(currentScore: Double, isCorrect: Boolean): Double {
+        return if (isCorrect) {
+            (currentScore * 0.9 + 1.0 * 0.1).coerceAtMost(1.0)
+        } else {
+            (currentScore * 0.9).coerceAtLeast(0.0)
         }
     }
 
     private suspend fun QuizDocument.toResponse(): QuizResponse {
-        val category = categoryRepository.findById(this.categoryId)
+        val category = categoryRepository.findById(categoryId)
             ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
 
         return QuizResponse(
-            id = this.id!!,
-            content = this.content,
-            answer = this.answer,
-            options = this.options,
+            id = id!!,
+            content = content,
+            answer = answer,
+            options = options,
             category = CategoryResponse(
                 id = category.id!!,
                 name = category.name,
-                description = category.description,
+                description = category.description
             ),
-            articleId = this.articleId,
-            type = this.type,
+            articleId = articleId,
+            type = type,
+            difficulty = difficulty,
+            tags = tags
         )
     }
+
+    private suspend fun getCurrentUserId(): Long? {
+        return if (securityHolder.isAuthenticated()) {
+            securityHolder.getUser().id
+        } else null
+    }
+
 }

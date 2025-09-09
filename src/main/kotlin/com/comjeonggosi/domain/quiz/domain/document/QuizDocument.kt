@@ -31,4 +31,22 @@ data class QuizDocument(
 
     @Field("type")
     val type: QuizType = QuizType.MULTIPLE_CHOICE,
+
+    @Field("difficulty")
+    val difficulty: Int = 3,
+
+    @Field("tags")
+    val tags: List<String> = emptyList(),
+
+    @Field("created_at")
+    val createdAt: Instant = Instant.now(),
+
+    @Field("updated_at")
+    val updatedAt: Instant = Instant.now(),
+
+    @Field("solve_count")
+    val solveCount: Int = 0,
+
+    @Field("correct_rate")
+    val correctRate: Double = 0.0,
 )
