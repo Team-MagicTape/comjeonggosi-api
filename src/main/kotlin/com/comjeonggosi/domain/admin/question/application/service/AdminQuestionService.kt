@@ -24,23 +24,27 @@ class AdminQuestionService(
         if (questionRepository.existsByCategoryIdAndDay(category.id!!, request.day))
             throw CustomException(QuestionErrorCode.QUESTION_ALREADY_EXISTS)
 
-        questionRepository.save(QuestionEntity(
-            categoryId = category.id,
-            day = request.day,
-            title = request.title,
-            content = request.content,
-            answer = request.answer
-        ))
+        questionRepository.save(
+            QuestionEntity(
+                categoryId = category.id,
+                day = request.day,
+                title = request.title,
+                content = request.content,
+                answer = request.answer
+            )
+        )
     }
 
     suspend fun updateQuestion(questionId: Long, request: UpdateQuestionRequest) {
         val question = questionRepository.findById(questionId)
             ?: throw CustomException(QuestionErrorCode.QUESTION_NOT_FOUND)
 
-        questionRepository.save(question.copy(
-            title = request.title ?: question.title,
-            content = request.content ?: question.content,
-            answer = request.answer ?: question.answer
-        ))
+        questionRepository.save(
+            question.copy(
+                title = request.title ?: question.title,
+                content = request.content ?: question.content,
+                answer = request.answer ?: question.answer
+            )
+        )
     }
 }

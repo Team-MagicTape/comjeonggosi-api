@@ -1,6 +1,7 @@
 package com.comjeonggosi.domain.article.application.service
 
 import com.comjeonggosi.common.exception.CustomException
+import com.comjeonggosi.domain.article.application.helper.RelevantArticleResponseHelper
 import com.comjeonggosi.domain.article.domain.entity.ArticleEntity
 import com.comjeonggosi.domain.article.domain.error.ArticleErrorCode
 import com.comjeonggosi.domain.article.domain.repository.ArticleRepository
@@ -15,7 +16,8 @@ import org.springframework.stereotype.Service
 @Service
 class ArticleService(
     private val articleRepository: ArticleRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val relevantArticleResponseHelper: RelevantArticleResponseHelper
 ) {
     fun getArticles(categoryId: Long?): Flow<ArticleResponse> {
         val articles = if (categoryId == null) {
@@ -35,6 +37,8 @@ class ArticleService(
         val category = categoryRepository.findById(categoryId)
             ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
 
+        val (beforeArticles, afterArticles) = relevantArticleResponseHelper.mapRelevantArticles(this.id!!)
+
         val content = content
             .replace(Regex("#{1,6}\\s*"), "")
             .replace(Regex("\\*{1,3}|_{1,3}"), "")
@@ -51,14 +55,16 @@ class ArticleService(
             }
 
         return ArticleResponse(
-            id = id!!,
+            id = id,
             title = title,
             content = content,
             category = CategoryResponse(
                 id = category.id!!,
                 name = category.name,
                 description = category.description
-            )
+            ),
+            beforeArticles = beforeArticles,
+            afterArticles = afterArticles
         )
     }
 
@@ -66,15 +72,19 @@ class ArticleService(
         val category = categoryRepository.findById(categoryId)
             ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
 
+        val (beforeArticles, afterArticles) = relevantArticleResponseHelper.mapRelevantArticles(this.id!!)
+
         return ArticleResponse(
-            id = id!!,
+            id = id,
             title = title,
             content = content,
             category = CategoryResponse(
                 id = category.id!!,
                 name = category.name,
                 description = category.description
-            )
+            ),
+            beforeArticles = beforeArticles,
+            afterArticles = afterArticles
         )
     }
 }

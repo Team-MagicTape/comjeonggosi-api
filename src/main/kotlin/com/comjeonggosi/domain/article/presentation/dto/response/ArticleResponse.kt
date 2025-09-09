@@ -7,4 +7,6 @@ data class ArticleResponse(
     val title: String,
     val content: String,
     val category: CategoryResponse,
+    val beforeArticles: List<RelevantArticleResponse>,
+    val afterArticles: List<RelevantArticleResponse>,
 )
