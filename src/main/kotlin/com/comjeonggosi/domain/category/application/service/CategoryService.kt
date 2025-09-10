@@ -17,8 +17,8 @@ class CategoryService(
         return categoryRepository.findAllByDeletedAtIsNull().map { it.toResponse() }
     }
 
-    suspend fun getCategory(id: Long): CategoryResponse {
-        return categoryRepository.findById(id)?.toResponse()
+    suspend fun getCategory(categoryId: Long): CategoryResponse {
+        return categoryRepository.findById(categoryId)?.toResponse()
             ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
     }
 
