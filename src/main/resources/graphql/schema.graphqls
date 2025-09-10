@@ -1,0 +1,20 @@
+type Query {
+    getArticles(categoryId: ID): [Article]
+    getArticle(id: ID): Article
+    category: Category
+}
+
+type Article {
+    id: ID
+    title: String
+    content: String
+    category: Category
+    beforeArticles: [Article]
+    afterArticles: [Article]
+}
+
+type Category {
+    id: ID
+    name: String
+    description: String
+}

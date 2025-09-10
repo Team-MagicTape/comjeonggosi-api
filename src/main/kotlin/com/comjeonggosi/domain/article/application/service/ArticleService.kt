@@ -19,7 +19,7 @@ class ArticleService(
     private val categoryRepository: CategoryRepository,
     private val relevantArticleResponseHelper: RelevantArticleResponseHelper
 ) {
-    fun getArticles(categoryId: Long?): Flow<ArticleResponse> {
+    fun getSummarizedArticles(categoryId: Long?): Flow<ArticleResponse> {
         val articles = if (categoryId == null) {
             articleRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc()
         } else {
@@ -32,6 +32,16 @@ class ArticleService(
         return articleRepository.findById(articleId)?.toDetailResponse()
             ?: throw CustomException(ArticleErrorCode.ARTICLE_NOT_FOUND)
     }
+
+    fun getArticles(categoryId: Long?): Flow<ArticleResponse> {
+        val articles = if (categoryId == null) {
+            articleRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc()
+        } else {
+            articleRepository.findAllByDeletedAtIsNullAndCategoryIdOrderByCreatedAtDesc(categoryId)
+        }
+        return articles.map { it.toDetailResponse() }
+    }
+
 
     private suspend fun ArticleEntity.toResponse(): ArticleResponse {
         val category = categoryRepository.findById(categoryId)
@@ -51,7 +61,11 @@ class ArticleService(
             .replace(Regex("\\n{2,}"), " ")
             .trim()
             .let {
-                if (it.length > 20) { it.take(20) + "..." } else { it }
+                if (it.length > 20) {
+                    it.take(20) + "..."
+                } else {
+                    it
+                }
             }
 
         return ArticleResponse(
