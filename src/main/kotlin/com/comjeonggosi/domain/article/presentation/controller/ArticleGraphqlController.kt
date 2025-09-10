@@ -13,5 +13,5 @@ class ArticleGraphqlController(
     fun getArticles(@Argument categoryId: Long?) = articleService.getArticles(categoryId)
 
     @QueryMapping
-    suspend fun getArticle(@Argument articleId: Long) = articleService.getArticle(articleId)
+    suspend fun getArticle(@Argument("id") articleId: Long) = articleService.getArticle(articleId)
 }
