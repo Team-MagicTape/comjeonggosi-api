@@ -15,10 +15,10 @@ class QuizController(
     @GetMapping
     suspend fun getQuiz(
         @RequestParam(required = false) categoryId: Long?,
-        @RequestParam(required = false, defaultValue = "RANDOM") mode: String = "RANDOM",
+        @RequestParam(required = false, defaultValue = "RANDOM") mode: QuizMode,
         @RequestParam(required = false) difficulty: Int?,
         @RequestParam(required = false) tags: List<String>?
-    ) = quizService.getQuiz(categoryId, QuizMode.valueOf(mode), difficulty, tags)
+    ) = quizService.getQuiz(categoryId, mode, difficulty, tags)
 
     @PostMapping("/{quizId}/solve")
     suspend fun solveQuiz(@PathVariable quizId: String, @RequestBody request: SolveQuizRequest) =
