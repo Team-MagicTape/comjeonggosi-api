@@ -36,7 +36,6 @@ class QuizQueryRepository(
     suspend fun findQuizzesByCriteria(
         categoryIds: List<Long>? = null,
         difficulties: List<Int>? = null,
-        tags: List<String>? = null,
         hiddenIds: List<String> = emptyList(),
         limit: Int = 100
     ): List<QuizDocument> {
@@ -48,10 +47,6 @@ class QuizQueryRepository(
 
         if (!difficulties.isNullOrEmpty()) {
             criteria.and("difficulty").`in`(difficulties)
-        }
-
-        if (!tags.isNullOrEmpty()) {
-            criteria.and("tags").`in`(tags)
         }
 
         if (hiddenIds.isNotEmpty()) {

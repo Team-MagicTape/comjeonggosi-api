@@ -35,9 +35,6 @@ data class QuizDocument(
     @Field("difficulty")
     val difficulty: Int = 3,
 
-    @Field("tags")
-    val tags: List<String> = emptyList(),
-
     @Field("created_at")
     val createdAt: Instant = Instant.now(),
 
