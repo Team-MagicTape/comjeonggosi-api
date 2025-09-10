@@ -10,7 +10,7 @@ type Article {
     content: String
     category: Category
     beforeArticles: [Article]
-    afterArticle: [Article]
+    afterArticles: [Article]
 }
 
 type Category {
