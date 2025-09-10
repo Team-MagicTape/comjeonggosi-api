@@ -38,8 +38,7 @@ class QuizService(
     suspend fun getQuiz(
         categoryId: Long? = null,
         mode: QuizMode = QuizMode.RANDOM,
-        difficulty: Int? = null,
-        tags: List<String>? = null
+        difficulty: Int? = null
     ): QuizResponse {
         val userId = getCurrentUserId()
         val sessionKey = sessionService.createSessionKey(userId)
@@ -52,7 +51,6 @@ class QuizService(
             userId = userId,
             categoryId = categoryId,
             difficulty = difficulty,
-            tags = tags,
             hiddenIds = hiddenIds
         ) ?: throw CustomException(QuizErrorCode.QUIZ_PREPARING)
 
@@ -120,14 +118,13 @@ class QuizService(
         userId: Long?,
         categoryId: Long?,
         difficulty: Int?,
-        tags: List<String>?,
         hiddenIds: List<String>
     ): QuizDocument? {
         return when (mode) {
             QuizMode.RECOMMEND -> getRecommendedQuiz(userId, categoryId, difficulty, hiddenIds)
             QuizMode.REVIEW -> getReviewQuiz(userId, hiddenIds)
             QuizMode.WEAKNESS -> getWeaknessQuiz(userId, categoryId, hiddenIds)
-            QuizMode.RANDOM -> getRandomQuiz(categoryId, difficulty, tags, hiddenIds)
+            QuizMode.RANDOM -> getRandomQuiz(categoryId, difficulty, hiddenIds)
         }
     }
 
@@ -150,7 +147,7 @@ class QuizService(
         hiddenIds: List<String>
     ): QuizDocument? {
         if (userId == null) {
-            return getRandomQuiz(categoryId, difficulty, null, hiddenIds)
+            return getRandomQuiz(categoryId, difficulty, hiddenIds)
         }
 
         val candidates = quizQueryRepository.findQuizzesByCriteria(
@@ -210,13 +207,11 @@ class QuizService(
     private suspend fun getRandomQuiz(
         categoryId: Long?,
         difficulty: Int?,
-        tags: List<String>?,
         hiddenIds: List<String>
     ): QuizDocument? {
         val candidates = quizQueryRepository.findQuizzesByCriteria(
             categoryIds = categoryId?.let { listOf(it) },
             difficulties = difficulty?.let { listOf(it) },
-            tags = tags,
             hiddenIds = hiddenIds,
             limit = 50
         )
@@ -297,8 +292,7 @@ class QuizService(
             ),
             articleId = articleId,
             type = type,
-            difficulty = difficulty,
-            tags = tags
+            difficulty = difficulty
         )
     }
 
