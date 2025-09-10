@@ -15,21 +15,24 @@ class SessionService {
     
     fun addToSession(sessionKey: String, quizId: String) {
         val session = sessions.getOrPut(sessionKey) { mutableListOf() }
-        
-        cleanExpiredEntries(session)
-        session.add(SessionEntry(quizId, Instant.now()))
-        
-        if (session.size > SESSION_SIZE) {
-            session.removeAt(0)
+
+        synchronized(session) {
+            cleanExpiredEntries(session)
+            session.add(SessionEntry(quizId, Instant.now()))
+
+            if (session.size > SESSION_SIZE) {
+                session.removeAt(0)
+            }
         }
     }
     
     fun getRecentIds(sessionKey: String): Set<String> {
         val session = sessions[sessionKey] ?: return emptySet()
-        
-        cleanExpiredEntries(session)
-        
-        return session.map { it.quizId }.toSet()
+
+        synchronized(session) {
+            cleanExpiredEntries(session)
+            return session.map { it.quizId }.toSet()
+        }
     }
     
     fun createSessionKey(userId: Long?): String {

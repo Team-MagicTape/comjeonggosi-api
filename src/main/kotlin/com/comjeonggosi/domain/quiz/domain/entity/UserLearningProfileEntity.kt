@@ -27,9 +27,5 @@ data class UserLearningProfileEntity(
     val lastStudyDate: Instant? = null,
 
     @Column("preferred_study_time")
-    val preferredStudyTime: String? = null,
-
-    val categoryScores: MutableMap<Long, Double> = mutableMapOf(),
-    
-    val difficultyPreferences: MutableMap<Int, Double> = mutableMapOf()
+    val preferredStudyTime: String? = null
 ) : BaseEntity()

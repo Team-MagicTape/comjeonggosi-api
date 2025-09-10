@@ -1,6 +1,7 @@
 package com.comjeonggosi.domain.quiz.presentation.controller
 
 import com.comjeonggosi.domain.quiz.application.service.QuizService
+import com.comjeonggosi.domain.quiz.domain.enums.QuizMode
 import com.comjeonggosi.domain.quiz.presentation.dto.request.SolveQuizRequest
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
@@ -14,10 +15,10 @@ class QuizController(
     @GetMapping
     suspend fun getQuiz(
         @RequestParam(required = false) categoryId: Long?,
-        @RequestParam(required = false, defaultValue = "random") mode: String = "random",
+        @RequestParam(required = false, defaultValue = "RANDOM") mode: String = "RANDOM",
         @RequestParam(required = false) difficulty: Int?,
         @RequestParam(required = false) tags: List<String>?
-    ) = quizService.getQuiz(categoryId, mode, difficulty, tags)
+    ) = quizService.getQuiz(categoryId, QuizMode.valueOf(mode), difficulty, tags)
 
     @PostMapping("/{quizId}/solve")
     suspend fun solveQuiz(@PathVariable quizId: String, @RequestBody request: SolveQuizRequest) =

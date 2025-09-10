@@ -1,3 +1,4 @@
+-- User learning profiles
 CREATE TABLE IF NOT EXISTS user_learning_profiles (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL UNIQUE,
@@ -12,22 +13,7 @@ CREATE TABLE IF NOT EXISTS user_learning_profiles (
 
 CREATE INDEX idx_user_learning_profiles_user_id ON user_learning_profiles(user_id);
 
-CREATE TABLE IF NOT EXISTS user_category_scores (
-    profile_id BIGINT NOT NULL,
-    category_id BIGINT NOT NULL,
-    score DOUBLE PRECISION NOT NULL,
-    PRIMARY KEY (profile_id, category_id),
-    FOREIGN KEY (profile_id) REFERENCES user_learning_profiles(id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS user_difficulty_preferences (
-    profile_id BIGINT NOT NULL,
-    difficulty INTEGER NOT NULL,
-    preference DOUBLE PRECISION NOT NULL,
-    PRIMARY KEY (profile_id, difficulty),
-    FOREIGN KEY (profile_id) REFERENCES user_learning_profiles(id) ON DELETE CASCADE
-);
-
+-- Quiz review schedules for spaced repetition
 CREATE TABLE IF NOT EXISTS quiz_review_schedules (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,

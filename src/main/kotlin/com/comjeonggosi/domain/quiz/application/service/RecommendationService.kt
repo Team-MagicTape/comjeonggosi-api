@@ -2,6 +2,7 @@ package com.comjeonggosi.domain.quiz.application.service
 
 import com.comjeonggosi.domain.quiz.domain.document.QuizDocument
 import com.comjeonggosi.domain.quiz.domain.entity.UserLearningProfileEntity
+import com.comjeonggosi.domain.quiz.domain.repository.UserCategoryScoreRepository
 import com.comjeonggosi.domain.quiz.domain.repository.UserLearningProfileRepository
 import org.springframework.stereotype.Service
 import kotlin.math.abs
@@ -9,7 +10,8 @@ import kotlin.math.exp
 
 @Service
 class RecommendationService(
-    private val userLearningProfileRepository: UserLearningProfileRepository
+    private val userLearningProfileRepository: UserLearningProfileRepository,
+    private val userCategoryScoreRepository: UserCategoryScoreRepository
 ) {
     companion object {
         private const val OPTIMAL_ACCURACY = 0.7
@@ -28,9 +30,13 @@ class RecommendationService(
         
         val profile = getCachedProfile(userId) 
             ?: return availableQuizzes.shuffled().take(limit)
-        
+
+        val categoryScores = userCategoryScoreRepository
+            .findAllByProfileId(profile.id!!)
+            .associate { it.categoryId to it.score }
+
         return availableQuizzes
-            .map { quiz -> quiz to calculateScore(quiz, profile, type) }
+            .map { quiz -> quiz to calculateScore(quiz, profile, categoryScores, type) }
             .sortedByDescending { it.second }
             .take(limit)
             .map { it.first }
@@ -43,12 +49,13 @@ class RecommendationService(
     private fun calculateScore(
         quiz: QuizDocument,
         profile: UserLearningProfileEntity,
+        categoryScores: Map<Long, Double>,
         type: RecommendationType
     ): Double {
         val userAccuracy = calculateUserAccuracy(profile)
         
         val difficultyScore = calculateDifficultyScore(quiz.difficulty, userAccuracy)
-        val categoryScore = calculateCategoryScore(quiz.categoryId, profile)
+        val categoryScore = calculateCategoryScore(quiz.categoryId, categoryScores)
         val freshnessScore = calculateFreshnessScore(quiz)
         
         return applyTypeWeights(type, difficultyScore, categoryScore, freshnessScore)
@@ -84,9 +91,9 @@ class RecommendationService(
 
     private fun calculateCategoryScore(
         categoryId: Long,
-        profile: UserLearningProfileEntity
+        categoryScores: Map<Long, Double>
     ): Double {
-        val categoryAccuracy = profile.categoryScores[categoryId] ?: OPTIMAL_ACCURACY
+        val categoryAccuracy = categoryScores[categoryId] ?: OPTIMAL_ACCURACY
         
         // 약한 카테고리일수록 높은 점수
         return 1.0 - categoryAccuracy

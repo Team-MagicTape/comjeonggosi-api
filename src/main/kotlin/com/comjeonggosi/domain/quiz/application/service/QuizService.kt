@@ -8,6 +8,7 @@ import com.comjeonggosi.domain.quiz.application.service.RecommendationService.Re
 import com.comjeonggosi.domain.quiz.domain.document.QuizDocument
 import com.comjeonggosi.domain.quiz.domain.entity.SubmissionEntity
 import com.comjeonggosi.domain.quiz.domain.entity.UserLearningProfileEntity
+import com.comjeonggosi.domain.quiz.domain.enums.QuizMode
 import com.comjeonggosi.domain.quiz.domain.error.QuizErrorCode
 import com.comjeonggosi.domain.quiz.domain.repository.*
 import com.comjeonggosi.domain.quiz.presentation.dto.request.SolveQuizRequest
@@ -27,6 +28,7 @@ class QuizService(
     private val submissionRepository: SubmissionRepository,
     private val categoryRepository: CategoryRepository,
     private val userLearningProfileRepository: UserLearningProfileRepository,
+    private val userCategoryScoreRepository: UserCategoryScoreRepository,
     private val recommendationService: RecommendationService,
     private val reviewScheduleService: ReviewScheduleService,
     private val sessionService: SessionService,
@@ -35,7 +37,7 @@ class QuizService(
 
     suspend fun getQuiz(
         categoryId: Long? = null,
-        mode: String = "random",
+        mode: QuizMode = QuizMode.RANDOM,
         difficulty: Int? = null,
         tags: List<String>? = null
     ): QuizResponse {
@@ -52,7 +54,7 @@ class QuizService(
             difficulty = difficulty,
             tags = tags,
             hiddenIds = hiddenIds
-        ) ?: throw CustomException(QuizErrorCode.PREPARING_QUIZ)
+        ) ?: throw CustomException(QuizErrorCode.QUIZ_PREPARING)
 
         sessionService.addToSession(sessionKey, quiz.id!!)
         return quiz.toResponse()
@@ -65,7 +67,13 @@ class QuizService(
         val isCorrect = quiz.answer == request.answer
 
         getCurrentUserId()?.let { userId ->
-            processSubmission(userId, quizId, request.answer, isCorrect, quiz.categoryId)
+            processSubmission(
+                userId = userId,
+                quizId = quizId,
+                answer = request.answer,
+                isCorrect = isCorrect,
+                categoryId = quiz.categoryId
+            )
         }
 
         return SolveQuizResponse(
@@ -79,8 +87,8 @@ class QuizService(
         size: Int,
         isCorrected: Boolean?
     ): Flow<QuizSubmissionResponse> {
-        val userId = getCurrentUserId() 
-            ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
+        val userId = getCurrentUserId()
+            ?: throw CustomException(QuizErrorCode.QUIZ_AUTHENTICATION_REQUIRED)
 
         return submissionRepository
             .findByUserId(userId, size, page.toLong() * size, isCorrected)
@@ -101,15 +109,14 @@ class QuizService(
         userId: Long?,
         recentIds: Set<String>
     ): List<String> {
-        return if (userId != null) {
-            submissionRepository.findRecentSolvedIds(userId, 100) + recentIds
-        } else {
-            recentIds.toList()
+        return when {
+            userId != null -> submissionRepository.findRecentSolvedIds(userId, 100) + recentIds
+            else -> recentIds.toList()
         }
     }
 
     private suspend fun selectQuizByMode(
-        mode: String,
+        mode: QuizMode,
         userId: Long?,
         categoryId: Long?,
         difficulty: Int?,
@@ -117,10 +124,10 @@ class QuizService(
         hiddenIds: List<String>
     ): QuizDocument? {
         return when (mode) {
-            "recommend" -> getRecommendedQuiz(userId, categoryId, difficulty, hiddenIds)
-            "review" -> getReviewQuiz(userId, hiddenIds)
-            "weakness" -> getWeaknessQuiz(userId, categoryId, hiddenIds)
-            else -> getRandomQuiz(categoryId, difficulty, tags, hiddenIds)
+            QuizMode.RECOMMEND -> getRecommendedQuiz(userId, categoryId, difficulty, hiddenIds)
+            QuizMode.REVIEW -> getReviewQuiz(userId, hiddenIds)
+            QuizMode.WEAKNESS -> getWeaknessQuiz(userId, categoryId, hiddenIds)
+            QuizMode.RANDOM -> getRandomQuiz(categoryId, difficulty, tags, hiddenIds)
         }
     }
 
@@ -142,7 +149,9 @@ class QuizService(
         difficulty: Int?,
         hiddenIds: List<String>
     ): QuizDocument? {
-        if (userId == null) return getRandomQuiz(categoryId, difficulty, null, hiddenIds)
+        if (userId == null) {
+            return getRandomQuiz(categoryId, difficulty, null, hiddenIds)
+        }
 
         val candidates = quizQueryRepository.findQuizzesByCriteria(
             categoryIds = categoryId?.let { listOf(it) },
@@ -163,14 +172,15 @@ class QuizService(
         userId: Long?,
         hiddenIds: List<String>
     ): QuizDocument? {
-        if (userId == null) return null
+        if (userId == null) {
+            return null
+        }
 
-        val dueQuizIds = reviewScheduleService.getDueReviews(userId)
+        val dueQuizIds = reviewScheduleService
+            .getDueReviews(userId)
             .filterNot { it in hiddenIds }
 
-        return dueQuizIds.firstOrNull()?.let {
-            quizRepository.findById(it)
-        }
+        return dueQuizIds.firstOrNull()?.let { quizRepository.findById(it) }
     }
 
     private suspend fun getWeaknessQuiz(
@@ -178,20 +188,20 @@ class QuizService(
         categoryId: Long?,
         hiddenIds: List<String>
     ): QuizDocument? {
-        if (userId == null) return null
+        if (userId == null) {
+            return null
+        }
 
-        val profile = userLearningProfileRepository.findByUserId(userId) 
-            ?: return null
+        val profile = userLearningProfileRepository.findByUserId(userId) ?: return null
 
-        val weakCategories = profile.categoryScores
-            .filter { categoryId == null || it.key == categoryId }
-            .entries
-            .sortedBy { it.value }
+        val categoryScores = userCategoryScoreRepository.findAllByProfileId(profile.id!!)
+            .filter { categoryId == null || it.categoryId == categoryId }
+            .sortedBy { it.score }
             .take(3)
-            .map { it.key }
+            .map { it.categoryId }
 
         return quizQueryRepository.findQuizzesByCriteria(
-            categoryIds = weakCategories,
+            categoryIds = categoryScores,
             hiddenIds = hiddenIds,
             limit = 50
         ).randomOrNull()
@@ -235,14 +245,25 @@ class QuizService(
         categoryId: Long,
         isCorrect: Boolean
     ) {
-        val profile = userLearningProfileRepository.findByUserId(userId)
-            ?: UserLearningProfileEntity(userId = userId)
+        var profile = userLearningProfileRepository.findByUserId(userId)
 
-        val currentScore = profile.categoryScores[categoryId] ?: 0.5
+        if (profile == null) {
+            profile = userLearningProfileRepository.save(
+                UserLearningProfileEntity(userId = userId)
+            )
+        }
+
+        val profileId = profile.id!!
+
+        // Get current category score
+        val categoryScores = userCategoryScoreRepository.findAllByProfileId(profileId)
+        val currentScore = categoryScores.find { it.categoryId == categoryId }?.score ?: 0.5
         val newScore = calculateNewScore(currentScore, isCorrect)
 
-        profile.categoryScores[categoryId] = newScore
+        // Update category score
+        userCategoryScoreRepository.upsert(profileId, categoryId, newScore)
 
+        // Update profile stats
         userLearningProfileRepository.save(
             profile.copy(
                 totalSolved = profile.totalSolved + 1,
@@ -282,9 +303,10 @@ class QuizService(
     }
 
     private suspend fun getCurrentUserId(): Long? {
-        return if (securityHolder.isAuthenticated()) {
-            securityHolder.getUser().id
-        } else null
+        return when {
+            securityHolder.isAuthenticated() -> securityHolder.getUser().id
+            else -> null
+        }
     }
 
 }
