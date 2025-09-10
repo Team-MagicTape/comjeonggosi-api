@@ -11,4 +11,6 @@ data class QuizResponse(
     val category: CategoryResponse,
     val articleId: Long?,
     val type: QuizType,
+    val difficulty: Int = 3,
+    val tags: List<String> = emptyList()
 )
