@@ -33,7 +33,7 @@ class QuizService(
         return quiz.toResponse()
     }
 
-    suspend fun getQuizById(quizId: String): QuizResponse {
+    suspend fun getQuiz(quizId: String): QuizResponse {
         val quiz = quizRepository.findById(quizId) ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
         return quiz.toResponse()
     }
