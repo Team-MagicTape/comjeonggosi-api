@@ -130,7 +130,7 @@ CREATE INDEX idx_question_deliveries_day ON question_deliveries (day);
 CREATE INDEX idx_question_deliveries_delivered_at ON question_deliveries (delivered_at);
 CREATE INDEX idx_question_deliveries_success ON question_deliveries (success);
 
--- Workbooks and relations
+-- 문제집
 CREATE TABLE workbooks (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -157,3 +157,15 @@ CREATE TABLE workbooks_quizzes (
 
 CREATE INDEX idx_workbooks_quizzes_workbook ON workbooks_quizzes (workbook_id);
 CREATE INDEX idx_workbooks_quizzes_quiz ON workbooks_quizzes (quiz_id);
+
+-- 공지
+CREATE TABLE IF NOT EXISTS notices (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX IF NOT EXISTS idx_notices_deleted_at ON notices (deleted_at);
