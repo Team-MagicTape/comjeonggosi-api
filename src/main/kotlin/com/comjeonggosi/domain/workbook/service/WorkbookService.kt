@@ -79,6 +79,13 @@ class WorkbookService(
         workbookRepository.findAllByOwnerIdAndDeletedAtIsNull(ownerId)
     }
 
+    fun getAllWorkbooks(): Flow<WorkbookResponse> = flow {
+        workbookRepository.findAllByDeletedAtIsNull().collect { wb ->
+            val quizIds = workbookQuizRepository.findAllByWorkbookId(wb.id!!).map { it.quizId }.toList()
+            emit(toResponse(wb, quizIds))
+        }
+    }
+
     suspend fun getWorkbook(workbookId: Long): WorkbookResponse {
         val userId = securityHolder.getUserId()
         val workbook = workbookRepository.findByIdAndOwnerIdAndDeletedAtIsNull(workbookId, userId)

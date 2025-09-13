@@ -13,6 +13,9 @@ class QuizController(
     suspend fun getRandomQuiz(@RequestParam(required = false) categoryId: Long?) =
         quizService.getRandomQuiz(categoryId)
 
+    @GetMapping("/{quizId}")
+    suspend fun getQuiz(@PathVariable quizId: String) = quizService.getQuizById(quizId)
+
     @PostMapping("/{quizId}/solve")
     suspend fun solveQuiz(@PathVariable quizId: String, @RequestBody request: SolveQuizRequest) =
         quizService.solve(quizId, request)
