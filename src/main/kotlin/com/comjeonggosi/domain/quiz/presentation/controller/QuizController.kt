@@ -19,6 +19,9 @@ class QuizController(
         @RequestParam(required = false) difficulty: Int?
     ) = quizService.getQuiz(categoryId, mode, difficulty)
 
+    @GetMapping("/{quizId}")
+    suspend fun getQuiz(@PathVariable quizId: String) = quizService.getQuiz(quizId)
+
     @PostMapping("/{quizId}/solve")
     suspend fun solveQuiz(@PathVariable quizId: String, @RequestBody request: SolveQuizRequest) =
         quizService.solve(quizId, request)

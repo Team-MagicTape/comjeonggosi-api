@@ -13,6 +13,9 @@ class WorkbookController(
     suspend fun create(@RequestBody request: WorkbookService.CreateWorkbookRequest) =
         workbookService.createWorkbook(request)
 
+    @GetMapping
+    fun getAllWorkbooks() = workbookService.getAllWorkbooks()
+
     @DeleteMapping("/{workbookId}")
     suspend fun delete(@PathVariable workbookId: Long) =
         workbookService.deleteWorkbook(workbookId)

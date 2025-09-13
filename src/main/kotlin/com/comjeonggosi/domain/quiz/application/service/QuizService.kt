@@ -58,6 +58,11 @@ class QuizService(
         return quiz.toResponse()
     }
 
+    suspend fun getQuiz(quizId: String): QuizResponse {
+        val quiz = quizRepository.findById(quizId) ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
+        return quiz.toResponse()
+    }
+
     suspend fun solve(quizId: String, request: SolveQuizRequest): SolveQuizResponse {
         val quiz = quizRepository.findById(quizId) 
             ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)

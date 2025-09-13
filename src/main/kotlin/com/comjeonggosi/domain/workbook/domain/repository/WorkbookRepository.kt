@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface WorkbookRepository: CoroutineCrudRepository<WorkbookEntity, Long> {
     fun findAllByOwnerIdAndDeletedAtIsNull(ownerId: Long): Flow<WorkbookEntity>
+    fun findAllByDeletedAtIsNull(): Flow<WorkbookEntity>
     suspend fun findByIdAndOwnerIdAndDeletedAtIsNull(id: Long, ownerId: Long): WorkbookEntity?
 }
