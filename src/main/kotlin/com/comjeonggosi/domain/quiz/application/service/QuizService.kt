@@ -54,7 +54,6 @@ class QuizService(
             hiddenIds = hiddenIds
         ) ?: throw CustomException(QuizErrorCode.QUIZ_PREPARING)
 
-        sessionService.addToSession(sessionKey, quiz.id!!)
         return quiz.toResponse()
     }
 
@@ -69,7 +68,9 @@ class QuizService(
 
         val isCorrect = quiz.answer == request.answer
 
-        getCurrentUserId()?.let { userId ->
+        val userId = getCurrentUserId()
+
+        userId?.let { userId ->
             processSubmission(
                 userId = userId,
                 quizId = quizId,
@@ -78,6 +79,9 @@ class QuizService(
                 categoryId = quiz.categoryId
             )
         }
+
+        val sessionKey = sessionService.createSessionKey(userId)
+        if (isCorrect) sessionService.addToSession(sessionKey, quiz.id!!)
 
         return SolveQuizResponse(
             isCorrect = isCorrect,
