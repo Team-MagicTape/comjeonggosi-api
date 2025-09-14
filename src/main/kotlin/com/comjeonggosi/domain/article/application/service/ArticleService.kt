@@ -25,11 +25,11 @@ class ArticleService(
         } else {
             articleRepository.findAllByDeletedAtIsNullAndCategoryIdOrderByCreatedAtDesc(categoryId)
         }
-        return articles.map { it.toResponse() }
+        return articles.map { it.toResponse(false) }
     }
 
     suspend fun getArticle(articleId: Long): ArticleResponse {
-        return articleRepository.findById(articleId)?.toDetailResponse()
+        return articleRepository.findById(articleId)?.toResponse(true)
             ?: throw CustomException(ArticleErrorCode.ARTICLE_NOT_FOUND)
     }
 
@@ -39,17 +39,33 @@ class ArticleService(
         } else {
             articleRepository.findAllByDeletedAtIsNullAndCategoryIdOrderByCreatedAtDesc(categoryId)
         }
-        return articles.map { it.toDetailResponse() }
+        return articles.map { it.toResponse(true) }
     }
 
-
-    private suspend fun ArticleEntity.toResponse(): ArticleResponse {
+    private suspend fun ArticleEntity.toResponse(isDetail: Boolean): ArticleResponse {
         val category = categoryRepository.findById(categoryId)
             ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
 
         val (beforeArticles, afterArticles) = relevantArticleResponseHelper.mapRelevantArticles(this.id!!)
 
-        val content = content
+        val content = if (!isDetail) toSummarizedContent(content) else content
+
+        return ArticleResponse(
+            id = id,
+            title = title,
+            content = content,
+            category = CategoryResponse(
+                id = category.id!!,
+                name = category.name,
+                description = category.description
+            ),
+            beforeArticles = beforeArticles,
+            afterArticles = afterArticles
+        )
+    }
+
+    private suspend fun toSummarizedContent(content: String): String {
+        return content
             .replace(Regex("#{1,6}\\s*"), "")
             .replace(Regex("\\*{1,3}|_{1,3}"), "")
             .replace(Regex("\\[([^]]+)]\\([^)]+\\)"), "$1")
@@ -67,38 +83,5 @@ class ArticleService(
                     it
                 }
             }
-
-        return ArticleResponse(
-            id = id,
-            title = title,
-            content = content,
-            category = CategoryResponse(
-                id = category.id!!,
-                name = category.name,
-                description = category.description
-            ),
-            beforeArticles = beforeArticles,
-            afterArticles = afterArticles
-        )
-    }
-
-    private suspend fun ArticleEntity.toDetailResponse(): ArticleResponse {
-        val category = categoryRepository.findById(categoryId)
-            ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
-
-        val (beforeArticles, afterArticles) = relevantArticleResponseHelper.mapRelevantArticles(this.id!!)
-
-        return ArticleResponse(
-            id = id,
-            title = title,
-            content = content,
-            category = CategoryResponse(
-                id = category.id!!,
-                name = category.name,
-                description = category.description
-            ),
-            beforeArticles = beforeArticles,
-            afterArticles = afterArticles
-        )
     }
 }
