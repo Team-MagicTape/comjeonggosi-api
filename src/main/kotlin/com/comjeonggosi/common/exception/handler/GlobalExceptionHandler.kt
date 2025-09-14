@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.bind.support.WebExchangeBindException
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.ServerWebInputException
+import org.springframework.web.reactive.resource.NoResourceFoundException
 import org.springframework.web.server.UnsupportedMediaTypeStatusException
 
 @RestControllerAdvice
@@ -114,6 +115,22 @@ class GlobalExceptionHandler {
             path = exchange.request.uri.path
         )
         return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(errorResponse)
+    }
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleNoResourceFoundException(
+        ex: NoResourceFoundException,
+        exchange: ServerWebExchange
+    ): ResponseEntity<ErrorResponse> {
+        log.warn(ex.message, ex)
+
+        val errorResponse = ErrorResponse(
+            status = HttpStatus.NOT_FOUND.value(),
+            code = "RESOURCE_NOT_FOUND",
+            message = "요청한 리소스를 찾을 수 없습니다.",
+            path = exchange.request.uri.path
+        )
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
     }
 
     @ExceptionHandler(AccessDeniedException::class)
