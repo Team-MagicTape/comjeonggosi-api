@@ -26,10 +26,11 @@ interface SubmissionRepository : CoroutineCrudRepository<SubmissionEntity, Long>
         SELECT quiz_id
         FROM submissions
         WHERE user_id = :userId
+        AND is_corrected = TRUE
         GROUP BY quiz_id
         ORDER BY MAX(created_at) DESC
         LIMIT :limit
         """
     )
-    suspend fun findRecentSolvedIds(userId: Long, limit: Int): List<String>
+    suspend fun findRecentCorrectlySolvedIds(userId: Long, limit: Int): List<String>
 }

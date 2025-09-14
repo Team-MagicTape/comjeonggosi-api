@@ -38,13 +38,14 @@ class QuizService(
     suspend fun getQuiz(
         categoryId: Long? = null,
         mode: QuizMode = QuizMode.RANDOM,
-        difficulty: Int? = null
+        difficulty: Int? = null,
+        hideSolved: Boolean = true
     ): QuizResponse {
         val userId = getCurrentUserId()
         val sessionKey = sessionService.createSessionKey(userId)
         val recentIds = sessionService.getRecentIds(sessionKey)
 
-        val hiddenIds = buildHiddenIds(userId, recentIds)
+        val hiddenIds = buildHiddenIds(userId, recentIds, hideSolved)
 
         val quiz = selectQuizByMode(
             mode = mode,
@@ -114,12 +115,16 @@ class QuizService(
 
     private suspend fun buildHiddenIds(
         userId: Long?,
-        recentIds: Set<String>
+        recentIds: Set<String>,
+        hideSolved: Boolean
     ): List<String> {
-        return when {
-            userId != null -> submissionRepository.findRecentSolvedIds(userId, 100) + recentIds
-            else -> recentIds.toList()
+        if (userId == null || !hideSolved) {
+            return recentIds.toList()
         }
+
+        val solvedIds = submissionRepository.findRecentCorrectlySolvedIds(userId, 1000)
+
+        return solvedIds + recentIds
     }
 
     private suspend fun selectQuizByMode(
