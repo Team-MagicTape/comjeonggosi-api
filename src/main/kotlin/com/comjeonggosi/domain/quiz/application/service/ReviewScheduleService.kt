@@ -25,7 +25,7 @@ class ReviewScheduleService(
     ) {
         val schedule = reviewScheduleRepository.findByUserIdAndQuizId(userId, quizId)
             ?: createNewSchedule(userId, quizId)
-        
+
         val updatedSchedule = calculateNextSchedule(schedule, isCorrect)
         reviewScheduleRepository.save(updatedSchedule)
     }
@@ -59,7 +59,7 @@ class ReviewScheduleService(
         val newCount = if (isCorrect) schedule.reviewCount + 1 else 0
         val newScore = updateRetentionScore(schedule.retentionScore, isCorrect)
         val intervalDays = getInterval(newCount, isCorrect)
-        
+
         return schedule.copy(
             reviewCount = newCount,
             lastReviewedAt = Instant.now(),
@@ -82,7 +82,7 @@ class ReviewScheduleService(
 
     private fun getInterval(reviewCount: Int, isCorrect: Boolean): Long {
         if (!isCorrect) return INTERVALS[0]
-        
+
         val index = reviewCount.coerceAtMost(INTERVALS.size - 1)
         return INTERVALS[index]
     }

@@ -27,8 +27,8 @@ class RecommendationService(
         limit: Int = 10
     ): List<QuizDocument> {
         if (availableQuizzes.isEmpty()) return emptyList()
-        
-        val profile = getCachedProfile(userId) 
+
+        val profile = getCachedProfile(userId)
             ?: return availableQuizzes.shuffled().take(limit)
 
         val categoryScores = userCategoryScoreRepository
@@ -53,11 +53,11 @@ class RecommendationService(
         type: RecommendationType
     ): Double {
         val userAccuracy = calculateUserAccuracy(profile)
-        
+
         val difficultyScore = calculateDifficultyScore(quiz.difficulty, userAccuracy)
         val categoryScore = calculateCategoryScore(quiz.categoryId, categoryScores)
         val freshnessScore = calculateFreshnessScore(quiz)
-        
+
         return applyTypeWeights(type, difficultyScore, categoryScore, freshnessScore)
     }
 
@@ -75,7 +75,7 @@ class RecommendationService(
     ): Double {
         val optimalDifficulty = getOptimalDifficulty(userAccuracy)
         val distance = abs(quizDifficulty - optimalDifficulty).toDouble()
-        
+
         // 거리가 가까울수록 높은 점수 (가우시안 분포)
         return exp(-0.5 * distance * distance)
     }
@@ -94,7 +94,7 @@ class RecommendationService(
         categoryScores: Map<Long, Double>
     ): Double {
         val categoryAccuracy = categoryScores[categoryId] ?: OPTIMAL_ACCURACY
-        
+
         // 약한 카테고리일수록 높은 점수
         return 1.0 - categoryAccuracy
     }
@@ -117,18 +117,20 @@ class RecommendationService(
         return when (type) {
             RecommendationType.BALANCED -> {
                 difficultyScore * DIFFICULTY_WEIGHT +
-                categoryScore * CATEGORY_WEIGHT +
-                freshnessScore * FRESHNESS_WEIGHT
+                        categoryScore * CATEGORY_WEIGHT +
+                        freshnessScore * FRESHNESS_WEIGHT
             }
+
             RecommendationType.WEAKNESS -> {
                 difficultyScore * 0.2 +
-                categoryScore * 0.7 +
-                freshnessScore * 0.1
+                        categoryScore * 0.7 +
+                        freshnessScore * 0.1
             }
+
             RecommendationType.CHALLENGE -> {
                 difficultyScore * 0.7 +
-                categoryScore * 0.1 +
-                freshnessScore * 0.2
+                        categoryScore * 0.1 +
+                        freshnessScore * 0.2
             }
         }
     }
