@@ -1,10 +1,12 @@
 package com.comjeonggosi.common.exception.handler
 
 import com.comjeonggosi.common.exception.CustomException
+import com.comjeonggosi.common.exception.error.GeneralErrorCode
 import com.comjeonggosi.common.exception.response.ErrorResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.r2dbc.BadSqlGrammarException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -29,6 +31,22 @@ class GlobalExceptionHandler {
         )
 
         return ResponseEntity.status(ex.status).body(errorResponse)
+    }
+    
+    @ExceptionHandler(BadSqlGrammarException::class)
+    fun handleBadSqlGrammarException(
+        ex: BadSqlGrammarException,
+        exchange: ServerWebExchange
+    ): ResponseEntity<ErrorResponse> {
+        log.error("Bad SQL Grammar", ex)
+        val errorCode = GeneralErrorCode.DATABASE_ERROR
+        val errorResponse = ErrorResponse(
+            status = errorCode.status.value(),
+            code = errorCode.name,
+            message = errorCode.message,
+            path = exchange.request.uri.path
+        )
+        return ResponseEntity.status(errorCode.status).body(errorResponse)
     }
 
     @ExceptionHandler(IllegalArgumentException::class)
