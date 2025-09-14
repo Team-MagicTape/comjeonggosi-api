@@ -298,7 +298,7 @@ class QuizService(
             id = id!!,
             content = content,
             answer = answer,
-            options = options,
+            options = (options + answer).shuffled(),
             category = CategoryResponse(
                 id = category.id!!,
                 name = category.name,
