@@ -64,6 +64,7 @@ class SecurityConfig(
                 .pathMatchers("/quizzes/**").permitAll()
                 .pathMatchers("/admin/**").hasRole("ADMIN")
                 .pathMatchers("/articles/**", "/categories/**").permitAll()
+                .pathMatchers("/notices/**").permitAll()
                 .anyExchange().authenticated()
         }
         .oauth2Login { oauth2 ->
