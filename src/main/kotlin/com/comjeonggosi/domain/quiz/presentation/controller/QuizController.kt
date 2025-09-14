@@ -16,8 +16,9 @@ class QuizController(
     suspend fun getQuiz(
         @RequestParam(required = false) categoryId: Long?,
         @RequestParam(required = false, defaultValue = "RANDOM") mode: QuizMode,
-        @RequestParam(required = false) difficulty: Int?
-    ) = quizService.getQuiz(categoryId, mode, difficulty)
+        @RequestParam(required = false) difficulty: Int?,
+        @RequestParam(name = "hideSolved", defaultValue = "true") hideSolved: Boolean
+    ) = quizService.getQuiz(categoryId, mode, difficulty, hideSolved)
 
     @GetMapping("/{quizId}")
     suspend fun getQuiz(@PathVariable quizId: String) = quizService.getQuiz(quizId)

@@ -38,13 +38,14 @@ class QuizService(
     suspend fun getQuiz(
         categoryId: Long? = null,
         mode: QuizMode = QuizMode.RANDOM,
-        difficulty: Int? = null
+        difficulty: Int? = null,
+        hideSolved: Boolean = true
     ): QuizResponse {
         val userId = getCurrentUserId()
         val sessionKey = sessionService.createSessionKey(userId)
         val recentIds = sessionService.getRecentIds(sessionKey)
 
-        val hiddenIds = buildHiddenIds(userId, recentIds)
+        val hiddenIds = buildHiddenIds(userId, recentIds, hideSolved)
 
         val quiz = selectQuizByMode(
             mode = mode,
@@ -54,7 +55,6 @@ class QuizService(
             hiddenIds = hiddenIds
         ) ?: throw CustomException(QuizErrorCode.QUIZ_PREPARING)
 
-        sessionService.addToSession(sessionKey, quiz.id!!)
         return quiz.toResponse()
     }
 
@@ -64,12 +64,14 @@ class QuizService(
     }
 
     suspend fun solve(quizId: String, request: SolveQuizRequest): SolveQuizResponse {
-        val quiz = quizRepository.findById(quizId) 
+        val quiz = quizRepository.findById(quizId)
             ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
 
         val isCorrect = quiz.answer == request.answer
 
-        getCurrentUserId()?.let { userId ->
+        val userId = getCurrentUserId()
+
+        userId?.let { userId ->
             processSubmission(
                 userId = userId,
                 quizId = quizId,
@@ -78,6 +80,9 @@ class QuizService(
                 categoryId = quiz.categoryId
             )
         }
+
+        val sessionKey = sessionService.createSessionKey(userId)
+        if (isCorrect) sessionService.addToSession(sessionKey, quiz.id!!)
 
         return SolveQuizResponse(
             isCorrect = isCorrect,
@@ -110,12 +115,16 @@ class QuizService(
 
     private suspend fun buildHiddenIds(
         userId: Long?,
-        recentIds: Set<String>
+        recentIds: Set<String>,
+        hideSolved: Boolean
     ): List<String> {
-        return when {
-            userId != null -> submissionRepository.findRecentSolvedIds(userId, 100) + recentIds
-            else -> recentIds.toList()
+        if (userId == null || !hideSolved) {
+            return recentIds.toList()
         }
+
+        val solvedIds = submissionRepository.findRecentCorrectlySolvedIds(userId, 1000)
+
+        return solvedIds + recentIds
     }
 
     private suspend fun selectQuizByMode(
@@ -289,7 +298,7 @@ class QuizService(
             id = id!!,
             content = content,
             answer = answer,
-            options = options,
+            options = (options + answer).shuffled(),
             category = CategoryResponse(
                 id = category.id!!,
                 name = category.name,

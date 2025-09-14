@@ -56,7 +56,7 @@ class QuizQueryRepository(
         val match: MatchOperation = Aggregation.match(criteria)
         val sample = Aggregation.sample(limit.toLong())
         val aggregation = Aggregation.newAggregation(match, sample)
-        
+
         return mongoTemplate.aggregate(aggregation, "quizzes", QuizDocument::class.java)
             .collectList()
             .awaitFirstOrDefault(emptyList())

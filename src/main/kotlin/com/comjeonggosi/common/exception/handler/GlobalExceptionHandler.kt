@@ -1,16 +1,19 @@
 package com.comjeonggosi.common.exception.handler
 
 import com.comjeonggosi.common.exception.CustomException
+import com.comjeonggosi.common.exception.error.GeneralErrorCode
 import com.comjeonggosi.common.exception.response.ErrorResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.r2dbc.BadSqlGrammarException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.bind.support.WebExchangeBindException
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.ServerWebInputException
+import org.springframework.web.reactive.resource.NoResourceFoundException
 import org.springframework.web.server.UnsupportedMediaTypeStatusException
 
 @RestControllerAdvice
@@ -29,6 +32,22 @@ class GlobalExceptionHandler {
         )
 
         return ResponseEntity.status(ex.status).body(errorResponse)
+    }
+    
+    @ExceptionHandler(BadSqlGrammarException::class)
+    fun handleBadSqlGrammarException(
+        ex: BadSqlGrammarException,
+        exchange: ServerWebExchange
+    ): ResponseEntity<ErrorResponse> {
+        log.error("Bad SQL Grammar", ex)
+        val errorCode = GeneralErrorCode.DATABASE_ERROR
+        val errorResponse = ErrorResponse(
+            status = errorCode.status.value(),
+            code = errorCode.name,
+            message = errorCode.message,
+            path = exchange.request.uri.path
+        )
+        return ResponseEntity.status(errorCode.status).body(errorResponse)
     }
 
     @ExceptionHandler(IllegalArgumentException::class)
@@ -96,6 +115,22 @@ class GlobalExceptionHandler {
             path = exchange.request.uri.path
         )
         return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(errorResponse)
+    }
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleNoResourceFoundException(
+        ex: NoResourceFoundException,
+        exchange: ServerWebExchange
+    ): ResponseEntity<ErrorResponse> {
+        log.warn(ex.message, ex)
+
+        val errorResponse = ErrorResponse(
+            status = HttpStatus.NOT_FOUND.value(),
+            code = "RESOURCE_NOT_FOUND",
+            message = "요청한 리소스를 찾을 수 없습니다.",
+            path = exchange.request.uri.path
+        )
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse)
     }
 
     @ExceptionHandler(AccessDeniedException::class)

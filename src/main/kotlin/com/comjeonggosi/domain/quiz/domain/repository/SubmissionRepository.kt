@@ -6,14 +6,16 @@ import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 interface SubmissionRepository : CoroutineCrudRepository<SubmissionEntity, Long> {
-    
-    @Query("""
+
+    @Query(
+        """
         SELECT * FROM submissions 
         WHERE user_id = :userId 
         AND (:isCorrected IS NULL OR is_corrected = :isCorrected)
         ORDER BY created_at DESC 
         LIMIT :limit OFFSET :offset
-    """)
+    """
+    )
     fun findByUserId(
         userId: Long,
         limit: Int,
@@ -23,12 +25,14 @@ interface SubmissionRepository : CoroutineCrudRepository<SubmissionEntity, Long>
 
     @Query(
         """
-        SELECT DISTINCT quiz_id 
+        SELECT quiz_id
         FROM submissions
-        WHERE user_id = :userId 
-        ORDER BY created_at DESC
+        WHERE user_id = :userId
+        AND is_corrected = TRUE
+        GROUP BY quiz_id
+        ORDER BY MAX(created_at) DESC
         LIMIT :limit
         """
     )
-    suspend fun findRecentSolvedIds(userId: Long, limit: Int): List<String>
+    suspend fun findRecentCorrectlySolvedIds(userId: Long, limit: Int): List<String>
 }
