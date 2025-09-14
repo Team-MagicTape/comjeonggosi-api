@@ -64,7 +64,7 @@ class QuizService(
     }
 
     suspend fun solve(quizId: String, request: SolveQuizRequest): SolveQuizResponse {
-        val quiz = quizRepository.findById(quizId) 
+        val quiz = quizRepository.findById(quizId)
             ?: throw CustomException(QuizErrorCode.QUIZ_NOT_FOUND)
 
         val isCorrect = quiz.answer == request.answer
