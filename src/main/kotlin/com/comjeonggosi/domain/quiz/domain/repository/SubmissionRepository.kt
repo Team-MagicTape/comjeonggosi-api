@@ -23,10 +23,11 @@ interface SubmissionRepository : CoroutineCrudRepository<SubmissionEntity, Long>
 
     @Query(
         """
-        SELECT DISTINCT quiz_id 
+        SELECT quiz_id
         FROM submissions
-        WHERE user_id = :userId 
-        ORDER BY created_at DESC
+        WHERE user_id = :userId
+        GROUP BY quiz_id
+        ORDER BY MAX(created_at) DESC
         LIMIT :limit
         """
     )
