@@ -23,8 +23,8 @@ class NoticeService(
         return entity.toResponse()
     }
 
-    suspend fun create(title: String, content: String): NoticeResponse {
-        val saved = noticeRepository.save(NoticeEntity(title = title, content = content))
+    suspend fun create(request: com.comjeonggosi.domain.admin.notice.presentation.dto.request.CreateNoticeRequest): NoticeResponse {
+        val saved = noticeRepository.save(NoticeEntity(title = request.title, content = request.content))
         return saved.toResponse()
     }
 

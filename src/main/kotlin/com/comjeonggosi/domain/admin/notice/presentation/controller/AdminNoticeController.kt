@@ -11,8 +11,8 @@ class AdminNoticeController(
 ) {
     @PostMapping
     suspend fun create(@RequestBody request: CreateNoticeRequest) =
-        noticeService.create(title = request.title, content = request.content)
+        noticeService.create(request)
 
-    @DeleteMapping("/{id}")
-    suspend fun delete(@PathVariable id: Long) = noticeService.delete(id)
+    @DeleteMapping("/{noticeId}")
+    suspend fun delete(@PathVariable noticeId: Long) = noticeService.delete(noticeId)
 }
