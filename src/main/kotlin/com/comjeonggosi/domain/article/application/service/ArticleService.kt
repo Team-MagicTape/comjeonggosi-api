@@ -1,6 +1,7 @@
 package com.comjeonggosi.domain.article.application.service
 
 import com.comjeonggosi.common.exception.CustomException
+import com.comjeonggosi.domain.article.application.helper.RelevantArticleResponseHelper
 import com.comjeonggosi.domain.article.domain.entity.ArticleEntity
 import com.comjeonggosi.domain.article.domain.error.ArticleErrorCode
 import com.comjeonggosi.domain.article.domain.repository.ArticleRepository
@@ -15,27 +16,56 @@ import org.springframework.stereotype.Service
 @Service
 class ArticleService(
     private val articleRepository: ArticleRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val relevantArticleResponseHelper: RelevantArticleResponseHelper
 ) {
+    fun getSummarizedArticles(categoryId: Long?): Flow<ArticleResponse> {
+        val articles = if (categoryId == null) {
+            articleRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc()
+        } else {
+            articleRepository.findAllByDeletedAtIsNullAndCategoryIdOrderByCreatedAtDesc(categoryId)
+        }
+        return articles.map { it.toResponse(false) }
+    }
+
+    suspend fun getArticle(articleId: Long): ArticleResponse {
+        return articleRepository.findById(articleId)?.toResponse(true)
+            ?: throw CustomException(ArticleErrorCode.ARTICLE_NOT_FOUND)
+    }
+
     fun getArticles(categoryId: Long?): Flow<ArticleResponse> {
         val articles = if (categoryId == null) {
             articleRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc()
         } else {
             articleRepository.findAllByDeletedAtIsNullAndCategoryIdOrderByCreatedAtDesc(categoryId)
         }
-        return articles.map { it.toResponse() }
+        return articles.map { it.toResponse(true) }
     }
 
-    suspend fun getArticle(articleId: Long): ArticleResponse {
-        return articleRepository.findById(articleId)?.toDetailResponse()
-            ?: throw CustomException(ArticleErrorCode.ARTICLE_NOT_FOUND)
-    }
-
-    private suspend fun ArticleEntity.toResponse(): ArticleResponse {
+    private suspend fun ArticleEntity.toResponse(isDetail: Boolean): ArticleResponse {
         val category = categoryRepository.findById(categoryId)
             ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
 
-        val content = content
+        val (beforeArticles, afterArticles) = relevantArticleResponseHelper.mapRelevantArticles(this.id!!)
+
+        val content = if (!isDetail) toSummarizedContent(content) else content
+
+        return ArticleResponse(
+            id = id,
+            title = title,
+            content = content,
+            category = CategoryResponse(
+                id = category.id!!,
+                name = category.name,
+                description = category.description
+            ),
+            beforeArticles = beforeArticles,
+            afterArticles = afterArticles
+        )
+    }
+
+    private suspend fun toSummarizedContent(content: String): String {
+        return content
             .replace(Regex("#{1,6}\\s*"), "")
             .replace(Regex("\\*{1,3}|_{1,3}"), "")
             .replace(Regex("\\[([^]]+)]\\([^)]+\\)"), "$1")
@@ -47,34 +77,11 @@ class ArticleService(
             .replace(Regex("\\n{2,}"), " ")
             .trim()
             .let {
-                if (it.length > 20) { it.take(20) + "..." } else { it }
+                if (it.length > 20) {
+                    it.take(20) + "..."
+                } else {
+                    it
+                }
             }
-
-        return ArticleResponse(
-            id = id!!,
-            title = title,
-            content = content,
-            category = CategoryResponse(
-                id = category.id!!,
-                name = category.name,
-                description = category.description
-            )
-        )
-    }
-
-    private suspend fun ArticleEntity.toDetailResponse(): ArticleResponse {
-        val category = categoryRepository.findById(categoryId)
-            ?: throw CustomException(CategoryErrorCode.CATEGORY_NOT_FOUND)
-
-        return ArticleResponse(
-            id = id!!,
-            title = title,
-            content = content,
-            category = CategoryResponse(
-                id = category.id!!,
-                name = category.name,
-                description = category.description
-            )
-        )
     }
 }

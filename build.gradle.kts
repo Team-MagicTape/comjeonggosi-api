@@ -28,7 +28,7 @@ extra["springGrpcVersion"] = "0.9.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-amqp")
+//    implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-batch")
     implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
@@ -66,7 +66,7 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-    testImplementation("org.springframework.amqp:spring-rabbit-test")
+//    testImplementation("org.springframework.amqp:spring-rabbit-test")
     testImplementation("org.springframework.batch:spring-batch-test")
     testImplementation("org.springframework.graphql:spring-graphql-test")
     testImplementation("org.springframework.grpc:spring-grpc-test")

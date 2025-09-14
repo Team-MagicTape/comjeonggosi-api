@@ -9,4 +9,5 @@ data class UpdateQuizRequest(
     val categoryId: Long?,
     val articleId: Long?,
     val type: QuizType?,
+    val difficulty: Int?
 )

@@ -27,14 +27,14 @@ services:
       - 'POSTGRES_USER=${POSTGRES_USERNAME}'
     ports:
       - '${POSTGRES_PORT}:5432'
-  rabbitmq:
-    image: 'rabbitmq:latest'
-    container_name: 'comjeonggosi-rabbitmq'
-    environment:
-      - 'RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}'
-      - 'RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}'
-    ports:
-      - '${RABBITMQ_PORT}:5672'
+#  rabbitmq:
+#    image: 'rabbitmq:latest'
+#    container_name: 'comjeonggosi-rabbitmq'
+#    environment:
+#      - 'RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}'
+#      - 'RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}'
+#    ports:
+#      - '${RABBITMQ_PORT}:5672'
   redis:
     image: 'redis:latest'
     container_name: 'comjeonggosi-redis'

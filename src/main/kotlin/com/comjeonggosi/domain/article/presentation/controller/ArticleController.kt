@@ -9,7 +9,8 @@ class ArticleController(
     private val articleService: ArticleService
 ) {
     @GetMapping
-    suspend fun getArticles(@RequestParam(required = false) categoryId: Long?) = articleService.getArticles(categoryId)
+    suspend fun getArticles(@RequestParam(required = false) categoryId: Long?) =
+        articleService.getSummarizedArticles(categoryId)
 
     @GetMapping("/{articleId}")
     suspend fun getArticle(@PathVariable articleId: Long) = articleService.getArticle(articleId)

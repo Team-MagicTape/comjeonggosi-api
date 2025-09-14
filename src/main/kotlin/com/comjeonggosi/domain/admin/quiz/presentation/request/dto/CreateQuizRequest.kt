@@ -9,4 +9,5 @@ data class CreateQuizRequest(
     val categoryId: Long,
     val articleId: Long?,
     val type: QuizType,
+    val difficulty: Int = 3
 )
