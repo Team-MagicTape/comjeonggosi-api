@@ -64,6 +64,7 @@ class SecurityConfig(
                 .pathMatchers("/oauth2/**").permitAll()
                 .pathMatchers("/quizzes/**").permitAll()
                 .pathMatchers("/questions/**").permitAll()
+                .pathMatchers("/questions").permitAll()
                 .pathMatchers("/workbooks/**").permitAll()
                 .pathMatchers("/admin/**").hasRole("ADMIN")
                 .pathMatchers("/articles/**", "/categories/**").permitAll()
