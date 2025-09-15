@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.http.HttpMethod
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.reactive.CorsConfigurationSource
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
@@ -62,6 +63,8 @@ class SecurityConfig(
                 .pathMatchers("/actuator/**").permitAll()
                 .pathMatchers("/oauth2/**").permitAll()
                 .pathMatchers("/quizzes/**").permitAll()
+                .pathMatchers("/questions/**").permitAll()
+                .pathMatchers("/workbooks/**").permitAll()
                 .pathMatchers("/admin/**").hasRole("ADMIN")
                 .pathMatchers("/articles/**", "/categories/**").permitAll()
                 .pathMatchers("/notices/**").permitAll()
