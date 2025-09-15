@@ -87,8 +87,7 @@ class WorkbookService(
     }
 
     suspend fun getWorkbook(workbookId: Long): WorkbookResponse {
-        val userId = securityHolder.getUserId()
-        val workbook = workbookRepository.findByIdAndOwnerIdAndDeletedAtIsNull(workbookId, userId)
+        val workbook = workbookRepository.findById(workbookId)
             ?: throw CustomException(WorkbookErrorCode.WORKBOOK_NOT_FOUND)
         val quizIds = workbookQuizRepository.findAllByWorkbookId(workbook.id!!).map { it.quizId }.toList()
         return toResponse(workbook, quizIds)
@@ -107,6 +106,13 @@ class WorkbookService(
         block(userId).collect { wb ->
             val quizIds = workbookQuizRepository.findAllByWorkbookId(wb.id!!).map { it.quizId }.toList()
             emit(toResponse(wb, quizIds))
+        }
+    }
+
+    private suspend fun getCurrentUserId(): Long? {
+        return when {
+            securityHolder.isAuthenticated() -> securityHolder.getUser().id
+            else -> null
         }
     }
 }
