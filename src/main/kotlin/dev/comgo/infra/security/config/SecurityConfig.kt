@@ -68,6 +68,7 @@ class SecurityConfig(
                 .pathMatchers("/questions/**").permitAll()
                 .pathMatchers("/questions").permitAll()
                 .pathMatchers("/workbooks/**").permitAll()
+                .pathMatchers("/sentry/**").permitAll()
                 .anyExchange().authenticated()
         }
         .oauth2Login { oauth2 ->
