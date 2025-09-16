@@ -82,6 +82,13 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
+sentry:
+  dsn: ${SENTRY_DSN}
+  in-app-includes:
+    - dev.comgo
+  enable-tracing: true
+  exception-resolver-order: -2147483647
+
 management:
   server:
     port: ${ACTUATOR_PORT}

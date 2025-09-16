@@ -1,9 +1,0 @@
-package com.comjeonggosi.domain.category.domain.repository
-
-import com.comjeonggosi.domain.category.domain.entity.CategoryEntity
-import kotlinx.coroutines.flow.Flow
-import org.springframework.data.repository.kotlin.CoroutineCrudRepository
-
-interface CategoryRepository : CoroutineCrudRepository<CategoryEntity, Long> {
-    fun findAllByDeletedAtIsNull(): Flow<CategoryEntity>
-}

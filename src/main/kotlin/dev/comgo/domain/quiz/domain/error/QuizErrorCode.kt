@@ -1,0 +1,10 @@
+package dev.comgo.domain.quiz.domain.error
+
+import dev.comgo.common.exception.error.CustomErrorCode
+import org.springframework.http.HttpStatus
+
+enum class QuizErrorCode(override val status: HttpStatus, override val message: String) : CustomErrorCode {
+    QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "찾을 수 없는 퀴즈입니다."),
+    QUIZ_PREPARING(HttpStatus.NOT_FOUND, "퀴즈를 준비중입니다."),
+    QUIZ_AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스입니다.")
+}

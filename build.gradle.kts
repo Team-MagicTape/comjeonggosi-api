@@ -9,7 +9,7 @@ plugins {
     id("org.asciidoctor.jvm.convert") version "3.3.2"
 }
 
-group = "com.comjeonggosi"
+group = "dev.comgo"
 version = "1.0.0"
 
 configurations {
@@ -39,6 +39,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.20.0")
+    implementation("io.sentry:sentry-logback:8.20.0")
+
     implementation("software.amazon.awssdk:ses:2.32.19")
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.9")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

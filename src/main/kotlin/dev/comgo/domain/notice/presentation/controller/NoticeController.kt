@@ -1,0 +1,19 @@
+package dev.comgo.domain.notice.presentation.controller
+
+import dev.comgo.domain.notice.application.service.NoticeService
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+@RequestMapping("/notices")
+class NoticeController(
+    private val noticeService: NoticeService
+) {
+    @GetMapping
+    fun getAll() = noticeService.getAll()
+
+    @GetMapping("/{id}")
+    suspend fun getById(@PathVariable id: Long) = noticeService.getById(id)
+}

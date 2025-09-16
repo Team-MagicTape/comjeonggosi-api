@@ -12,3 +12,14 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
+
+sentry:
+  environment: production
+  traces-sample-rate: 0.1
+  send-default-pii: false
+  logging:
+    minimum-event-level: error
+    minimum-breadcrumb-level: warn
+  sample-rate: 0.25
+  max-breadcrumbs: 50
+  attach-threads: false
