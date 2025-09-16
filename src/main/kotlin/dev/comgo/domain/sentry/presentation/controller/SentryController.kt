@@ -11,6 +11,7 @@ class SentryController {
     @GetMapping("/test")
     suspend fun testSentry(): String {
         Sentry.captureException(RuntimeException("This is a test exception for Sentry"))
+
         return "Sentry test exception has been sent."
     }
 }
