@@ -1,11 +1,5 @@
 import com.google.protobuf.gradle.id
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
-
 plugins {
     kotlin("jvm") version "1.9.25"
     kotlin("plugin.spring") version "1.9.25"
@@ -13,7 +7,6 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("com.google.protobuf") version "0.9.4"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
-    id("io.sentry.jvm.gradle") version "3.12.0"
 }
 
 group = "dev.comgo"
@@ -30,17 +23,8 @@ repositories {
 }
 
 
-sentry {
-    includeSourceContext = true
-
-    org = "sentry"
-    projectName = "comgo-api"
-    authToken = System.getenv("SENTRY_AUTH_TOKEN")
-}
-
-
 extra["snippetsDir"] = file("build/generated-snippets")
-extra["sentryVersion"] = "8.16.0"
+extra["sentryVersion"] = "8.21.1"
 extra["springGrpcVersion"] = "0.9.0"
 
 dependencies {
@@ -57,15 +41,14 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.21.1")
-    implementation("io.sentry:sentry-logback:8.21.1")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta")
+    implementation("io.sentry:sentry-logback")
 
     implementation("software.amazon.awssdk:ses:2.32.19")
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.9")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.grpc:grpc-services")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
