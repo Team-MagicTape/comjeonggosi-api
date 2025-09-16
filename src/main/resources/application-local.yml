@@ -3,3 +3,6 @@ management:
     web:
       exposure:
         include: "*"
+
+sentry:
+  enabled: false
