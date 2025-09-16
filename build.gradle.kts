@@ -57,8 +57,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.20.0")
-    implementation("io.sentry:sentry-logback:8.20.0")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.21.1")
+    implementation("io.sentry:sentry-logback:8.21.1")
 
     implementation("software.amazon.awssdk:ses:2.32.19")
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.9")
