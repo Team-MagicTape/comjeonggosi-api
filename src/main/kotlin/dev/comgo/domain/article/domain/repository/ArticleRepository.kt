@@ -1,0 +1,13 @@
+package dev.comgo.domain.article.domain.repository
+
+import dev.comgo.domain.article.domain.entity.ArticleEntity
+import kotlinx.coroutines.flow.Flow
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
+import org.springframework.stereotype.Repository
+
+@Repository
+interface ArticleRepository : CoroutineCrudRepository<ArticleEntity, Long> {
+    fun findAllByDeletedAtIsNullAndCategoryIdOrderByCreatedAtDesc(categoryId: Long): Flow<ArticleEntity>
+    fun findAllByDeletedAtIsNullOrderByCreatedAtDesc(): Flow<ArticleEntity>
+    suspend fun findAllByIdInAndDeletedAtIsNull(ids: List<Long>): List<ArticleEntity>
+}
