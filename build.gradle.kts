@@ -22,8 +22,8 @@ repositories {
     mavenCentral()
 }
 
+
 extra["snippetsDir"] = file("build/generated-snippets")
-extra["sentryVersion"] = "8.16.0"
 extra["springGrpcVersion"] = "0.9.0"
 
 dependencies {
@@ -40,15 +40,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.20.0")
-    implementation("io.sentry:sentry-logback:8.20.0")
-
     implementation("software.amazon.awssdk:ses:2.32.19")
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.9")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.grpc:grpc-services")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -82,7 +78,6 @@ dependencies {
 
 dependencyManagement {
     imports {
-        mavenBom("io.sentry:sentry-bom:${property("sentryVersion")}")
         mavenBom("org.springframework.grpc:spring-grpc-dependencies:${property("springGrpcVersion")}")
     }
 }
