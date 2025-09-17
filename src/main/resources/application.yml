@@ -82,12 +82,10 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
 
-sentry:
-  dsn: ${SENTRY_DSN}
-  in-app-includes:
-    - dev.comgo
-  enable-tracing: true
-  exception-resolver-order: -2147483647
+slack:
+  webhook:
+    url: ${SLACK_WEBHOOK_URL}
+    enabled: ${SLACK_WEBHOOK_ENABLED}
 
 management:
   server:

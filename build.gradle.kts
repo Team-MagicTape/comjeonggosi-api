@@ -24,7 +24,6 @@ repositories {
 
 
 extra["snippetsDir"] = file("build/generated-snippets")
-extra["sentryVersion"] = "8.21.1"
 extra["springGrpcVersion"] = "0.9.0"
 
 dependencies {
@@ -40,9 +39,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-
-    implementation("io.sentry:sentry-spring-boot-jakarta")
-    implementation("io.sentry:sentry-logback")
 
     implementation("software.amazon.awssdk:ses:2.32.19")
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.9")
@@ -82,7 +78,6 @@ dependencies {
 
 dependencyManagement {
     imports {
-        mavenBom("io.sentry:sentry-bom:${property("sentryVersion")}")
         mavenBom("org.springframework.grpc:spring-grpc-dependencies:${property("springGrpcVersion")}")
     }
 }
