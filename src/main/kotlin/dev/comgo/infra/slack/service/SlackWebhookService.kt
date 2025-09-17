@@ -3,13 +3,15 @@ package dev.comgo.infra.slack.service
 import dev.comgo.infra.slack.config.SlackProperties
 import dev.comgo.logger
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 
 @Service
 class SlackWebhookService(
-    private val slackProperties: SlackProperties
+    private val slackProperties: SlackProperties,
+    @Value("\${spring.profiles.active:default}") private val activeProfile: String
 ) {
     private val log = logger()
     private val webClient = WebClient.builder().build()
@@ -48,7 +50,7 @@ class SlackWebhookService(
         "attachments" to listOf(
             mapOf(
                 "color" to "danger",
-                "title" to "[$errorCode] Error",
+                "title" to "[${activeProfile.uppercase()}] $errorCode",
                 "text" to "${exception.message}",
                 "fields" to listOf(
                     mapOf(
