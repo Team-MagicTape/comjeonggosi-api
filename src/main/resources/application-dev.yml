@@ -13,3 +13,9 @@ sentry:
     minimum-breadcrumb-level: info
   attach-threads: true
   attach-stacktrace: true
+  debug: true
+
+logging:
+  level:
+    io.sentry: DEBUG
+    org.springframework.boot.autoconfigure.condition: DEBUG
