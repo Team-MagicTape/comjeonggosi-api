@@ -58,17 +58,18 @@ class SecurityConfig(
         .authorizeExchange { exchanges ->
             exchanges
                 .pathMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                .pathMatchers("/auth/**").permitAll()
                 .pathMatchers("/actuator/**").permitAll()
+
+                .pathMatchers("/auth/**").permitAll()
                 .pathMatchers("/oauth2/**").permitAll()
                 .pathMatchers("/quizzes/**").permitAll()
-                .pathMatchers("/admin/**").hasRole("ADMIN")
-                .pathMatchers("/articles/**", "/categories/**").permitAll()
+                .pathMatchers("/articles/**").permitAll()
+                .pathMatchers("/categories/**").permitAll()
                 .pathMatchers("/notices/**").permitAll()
-                .pathMatchers("/questions/**").permitAll()
-                .pathMatchers("/questions").permitAll()
+                .pathMatchers("/questions/**").authenticated()
                 .pathMatchers("/workbooks/**").permitAll()
-                .pathMatchers("/sentry/**").permitAll()
+
+                .pathMatchers("/admin/**").hasRole("ADMIN")
                 .anyExchange().authenticated()
         }
         .oauth2Login { oauth2 ->

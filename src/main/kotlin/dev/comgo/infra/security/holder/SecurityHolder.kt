@@ -1,6 +1,8 @@
 package dev.comgo.infra.security.holder
 
+import dev.comgo.common.exception.CustomException
 import dev.comgo.domain.user.domain.entity.UserEntity
+import dev.comgo.domain.user.domain.error.UserErrorCode
 import dev.comgo.domain.user.domain.repository.UserRepository
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -15,12 +17,12 @@ class SecurityHolder(
         return ReactiveSecurityContextHolder.getContext()
             .awaitSingle()
             .authentication
-            ?.principal as? Long ?: throw IllegalStateException("No authenticated user")
+            ?.principal as? Long ?: throw CustomException(UserErrorCode.USER_NOT_LOGGED_IN)
     }
 
     suspend fun getUser(): UserEntity {
         val userId = getUserId()
-        return userRepository.findById(userId) ?: throw IllegalStateException("User not found")
+        return userRepository.findById(userId) ?: throw CustomException(UserErrorCode.USER_NOT_FOUND)
     }
 
     suspend fun isAuthenticated(): Boolean {
