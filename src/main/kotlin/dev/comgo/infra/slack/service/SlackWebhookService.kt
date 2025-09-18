@@ -46,32 +46,89 @@ class SlackWebhookService(
         errorCode: String,
         path: String,
         additionalInfo: Map<String, Any?>
-    ) = mapOf(
-        "attachments" to listOf(
+    ): Map<String, Any> {
+        val stackTrace = exception.stackTraceToString()
+        val truncatedStackTrace = if (stackTrace.length > 3000) {
+            stackTrace.take(2800) + "\n... (truncated)"
+        } else {
+            stackTrace
+        }
+
+        val blocks = mutableListOf<Map<String, Any>>(
             mapOf(
-                "color" to "danger",
-                "title" to "[${activeProfile.uppercase()}] $errorCode",
-                "text" to "${exception.message}",
+                "type" to "header",
+                "text" to mapOf(
+                    "type" to "plain_text",
+                    "text" to "[${activeProfile.uppercase()}] $errorCode"
+                )
+            ),
+            mapOf(
+                "type" to "section",
                 "fields" to listOf(
                     mapOf(
-                        "title" to "Path",
-                        "value" to path,
-                        "short" to true
+                        "type" to "mrkdwn",
+                        "text" to "*Path:*\n`$path`"
                     ),
                     mapOf(
-                        "title" to "Exception",
-                        "value" to exception.javaClass.simpleName,
-                        "short" to true
+                        "type" to "mrkdwn",
+                        "text" to "*Exception:*\n`${exception.javaClass.simpleName}`"
                     )
-                ) + additionalInfo.map { (key, value) ->
-                    mapOf(
-                        "title" to key,
-                        "value" to value.toString(),
-                        "short" to true
-                    )
-                },
-                "ts" to (System.currentTimeMillis() / 1000)
+                )
             )
         )
-    )
+
+        if (exception.message != null) {
+            blocks.add(
+                mapOf(
+                    "type" to "section",
+                    "text" to mapOf(
+                        "type" to "mrkdwn",
+                        "text" to "*Message:*\n${exception.message}"
+                    )
+                )
+            )
+        }
+
+        if (additionalInfo.isNotEmpty()) {
+            blocks.add(
+                mapOf(
+                    "type" to "section",
+                    "fields" to additionalInfo.map { (key, value) ->
+                        mapOf(
+                            "type" to "mrkdwn",
+                            "text" to "*$key:*\n$value"
+                        )
+                    }
+                )
+            )
+        }
+
+        blocks.add(
+            mapOf(
+                "type" to "divider"
+            )
+        )
+
+        blocks.add(
+            mapOf(
+                "type" to "context",
+                "elements" to listOf(
+                    mapOf(
+                        "type" to "mrkdwn",
+                        "text" to "```$truncatedStackTrace```"
+                    )
+                )
+            )
+        )
+
+        return mapOf(
+            "blocks" to blocks,
+            "attachments" to listOf(
+                mapOf(
+                    "color" to "danger",
+                    "fallback" to "[${activeProfile.uppercase()}] $errorCode: ${exception.message ?: "No message"}"
+                )
+            )
+        )
+    }
 }

@@ -1,6 +1,9 @@
 package dev.comgo.domain.auth.application.service
 
+import dev.comgo.common.exception.CustomException
+import dev.comgo.domain.auth.domain.error.AuthErrorCode
 import dev.comgo.domain.user.domain.entity.UserEntity
+import dev.comgo.domain.user.domain.error.UserErrorCode
 import dev.comgo.domain.user.domain.repository.UserRepository
 import dev.comgo.infra.cookie.config.CookieProperties
 import dev.comgo.infra.security.jwt.enums.JwtType
@@ -19,15 +22,15 @@ class AuthService(
 ) {
     suspend fun refreshToken(exchange: ServerWebExchange) {
         val refreshToken = exchange.request.cookies["refreshToken"]?.first()?.value
-            ?: throw IllegalArgumentException("Refresh token not found")
+            ?: throw CustomException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND)
 
         if (!jwtProvider.validateToken(refreshToken)) {
-            throw IllegalArgumentException("Invalid refresh token")
+            throw CustomException(AuthErrorCode.INVALID_REFRESH_TOKEN)
         }
 
         val userId = jwtProvider.getUserId(refreshToken)
         val user = userRepository.findById(userId)
-            ?: throw IllegalArgumentException("User not found")
+            ?: throw CustomException(UserErrorCode.USER_NOT_FOUND)
 
         val newAccessToken = jwtProvider.generateToken(user.id!!, user.role, JwtType.ACCESS_TOKEN)
 
@@ -45,7 +48,7 @@ class AuthService(
     }
 
     suspend fun updateLastLoginAt(userId: Long): UserEntity {
-        val user = userRepository.findById(userId) ?: throw IllegalArgumentException("User not found")
+        val user = userRepository.findById(userId) ?: throw CustomException(UserErrorCode.USER_NOT_FOUND)
         return userRepository.save(user.copy(lastLoginAt = Instant.now()))
     }
 
