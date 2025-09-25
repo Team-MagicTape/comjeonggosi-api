@@ -306,7 +306,9 @@ class QuizService(
             ),
             articleId = articleId,
             type = type,
-            difficulty = difficulty
+            difficulty = difficulty,
+            explanation = explanation,
+            imageUrl = imageUrl,
         )
     }
 

@@ -9,5 +9,7 @@ data class CreateQuizRequest(
     val categoryId: Long,
     val articleId: Long?,
     val type: QuizType,
-    val difficulty: Int = 3
+    val difficulty: Int = 3,
+    val explanation: String?,
+    val imageUrl: String?,
 )

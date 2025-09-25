@@ -46,4 +46,8 @@ data class QuizDocument(
 
     @Field("correct_rate")
     val correctRate: Double = 0.0,
+
+    val explanation: String? = null,
+
+    val imageUrl: String? = null,
 )
