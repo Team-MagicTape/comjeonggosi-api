@@ -11,5 +11,7 @@ data class QuizResponse(
     val category: CategoryResponse,
     val articleId: Long?,
     val type: QuizType,
-    val difficulty: Int = 3
+    val difficulty: Int = 3,
+    val explanation: String?,
+    val imageUrl: String?,
 )

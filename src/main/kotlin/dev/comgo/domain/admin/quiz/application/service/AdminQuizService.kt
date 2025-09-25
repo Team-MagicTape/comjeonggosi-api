@@ -39,7 +39,9 @@ class AdminQuizService(
             categoryId = category.id!!,
             articleId = article?.id,
             type = request.type,
-            difficulty = request.difficulty
+            difficulty = request.difficulty,
+            explanation = request.explanation,
+            imageUrl = request.imageUrl,
         )
 
         quizRepository.save(quiz)
@@ -106,7 +108,9 @@ class AdminQuizService(
             ),
             articleId = this.articleId,
             type = this.type,
-            difficulty = this.difficulty
+            difficulty = this.difficulty,
+            explanation = this.explanation,
+            imageUrl = this.imageUrl
         )
     }
 }
